@@ -23,8 +23,16 @@ def start_download_procedure(message):
     if util.is_youtube_link(message.text):
         return downloader.load(message.text)
     new_link = convert(message.text)
+    if new_link == "":
+        tb.send_message(message.from_user.id, "Ooops, cant find song from this link")
+        return []
     tb.send_message(message.from_user.id, "Found this in youtube " + new_link)
-    return downloader.load(new_link)
+    try:
+        res = downloader.load(new_link)
+    except Exception as e:
+        print("Error while downloading " + str(e))
+        return []
+    return res
 
 
 def add_procedure(message, res_dict):
@@ -99,6 +107,5 @@ def handle_input(message):
             add_procedure(message, res_dict)
         else:
             tb.send_message(message.from_user.id, "Invalid url")
-
 
 tb.polling(none_stop=True, interval=0)
