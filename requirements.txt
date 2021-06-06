@@ -1,0 +1,8 @@
+youtube-dl
+pyTelegramBotAPI
+python-vlc
+urllib3
+validators
+
+
+https://www.gyan.dev/ffmpeg/builds/ -- for ffmpeg Windows
