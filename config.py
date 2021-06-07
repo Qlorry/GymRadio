@@ -23,9 +23,11 @@ class Config:
         # Init values
         try:
             self.token = self.data['token']
+            self.admins = self.data['admins']
         except KeyError as e:
             print("No parameter " + str(e) + " in config")
             exit()
+
 
     def update_config(self):
         self.data['token'] = self.token

@@ -49,6 +49,8 @@ def add_procedure(message, res_dict):
     else:
         player.add_song(Song(res_dict.get('title')))
         tb.send_message(message.from_user.id, "Song \"" + res_dict.get('title') + "\" added in queue")
+    if player.is_from_library:
+        player.switch_to_orders()
 
 
 @tb.message_handler(commands=['start', 'help'])
@@ -58,14 +60,23 @@ def handle_start_help(message):
     tb.send_message(message.from_user.id, "Choose what to do", reply_markup=markup)
 
 
+@tb.message_handler(commands=['shuffle_library'])
+def handle_start_help(message):
+    # or add KeyboardButton one row at a time:
+    player.shuffle_lib()
+    tb.send_message(message.from_user.id, "Done")
+
+
 @tb.message_handler(content_types=['text'])
 def handle_input(message):
     if message.text == 'Switch to Library':
         player.switch_to_library()
+        player.next()
         tb.send_message(message.from_user.id, "Library")
         return
     if message.text == 'Switch to Orders':
         player.switch_to_orders()
+        player.next()
         tb.send_message(message.from_user.id, "Orders")
         return
     if (message.text == '⏯') | (message.text == '▶️') | (message.text == '⏹'):
@@ -107,5 +118,6 @@ def handle_input(message):
             add_procedure(message, res_dict)
         else:
             tb.send_message(message.from_user.id, "Invalid url")
+
 
 tb.polling(none_stop=True, interval=0)

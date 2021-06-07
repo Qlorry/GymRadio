@@ -1,5 +1,7 @@
 import threading
 import time
+import random
+
 import vlc
 import music_library
 
@@ -52,7 +54,8 @@ class MyPlayer:
 
     def next(self, play=True):
         if len(self.up_next) == 0:
-            self.load_library()
+            if len(self.library) == 0:
+                self.load_library()
             self.up_next = self.library
         song = self.up_next.pop(0)
         if len(self.history) > 100:
@@ -94,9 +97,12 @@ class MyPlayer:
         self.library = music_library.get_song_library()
 
     def switch_to_library(self):
+        self.is_from_library = True
         self.up_next = self.library
-        self.next()
 
     def switch_to_orders(self):
+        self.is_from_library = False
         self.up_next = self.order
-        self.next()
+
+    def shuffle_lib(self):
+        random.shuffle(self.library)
