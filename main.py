@@ -15,8 +15,6 @@ conf = Config()
 tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
 player = MyPlayer()
-player.switch_to_library()
-player.next(False)
 
 
 def start_download_procedure(message):
@@ -49,8 +47,7 @@ def add_procedure(message, res_dict):
     else:
         player.add_song(Song(res_dict.get('title')))
         tb.send_message(message.from_user.id, "Song \"" + res_dict.get('title') + "\" added in queue")
-    if player.is_from_library:
-        player.switch_to_orders()
+
 
 
 @tb.message_handler(commands=['start', 'help'])
@@ -69,8 +66,8 @@ def handle_start_help(message):
 
 @tb.message_handler(content_types=['text'])
 def handle_input(message):
-    if message.text == 'Switch to Library':
-        player.switch_to_library()
+    if message.text == 'Switch to Radio':
+        player.switch_to_radio()
         player.next()
         tb.send_message(message.from_user.id, "Library")
         return
@@ -80,9 +77,9 @@ def handle_input(message):
         tb.send_message(message.from_user.id, "Orders")
         return
     if (message.text == '⏯') | (message.text == '▶️') | (message.text == '⏹'):
-        if player.is_now_playing:
+        if player.is_now_playing():
             tb.send_message(message.from_user.id, "Stopping", reply_markup=get_admin_ui_play())
-            player.stop()
+            player.pause()
         else:
             tb.send_message(message.from_user.id, "Lets Rock!", reply_markup=get_admin_ui_stop())
             player.play()

@@ -4,5 +4,3 @@ python-vlc
 urllib3
 validators~=0.18.2
 requests~=2.25.1
-
-https://www.gyan.dev/ffmpeg/builds/ -- for ffmpeg Windows

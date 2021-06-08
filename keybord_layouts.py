@@ -4,7 +4,7 @@ from telebot import types
 
 def get_admin_ui():
     markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Library')
+    btn_library = types.KeyboardButton('Switch to Radio')
     btn_orders = types.KeyboardButton('Switch to Orders')
     btn_play = types.KeyboardButton('⏯')
     btn_next = types.KeyboardButton('⏭')
@@ -19,7 +19,7 @@ def get_admin_ui():
 
 def get_user_ui():
     markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Library')
+    btn_library = types.KeyboardButton('Switch to Radio')
     btn_orders = types.KeyboardButton('Switch to Orders')
     btn_sound_up = types.KeyboardButton('Whats playing now?')
     btn_sound_down = types.KeyboardButton('Help')
@@ -30,7 +30,7 @@ def get_user_ui():
 
 def get_admin_ui_play():
     markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Library')
+    btn_library = types.KeyboardButton('Switch to Radio')
     btn_orders = types.KeyboardButton('Switch to Orders')
     btn_play = types.KeyboardButton('▶️')
     btn_next = types.KeyboardButton('⏭')
@@ -45,7 +45,7 @@ def get_admin_ui_play():
 
 def get_admin_ui_stop():
     markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Library')
+    btn_library = types.KeyboardButton('Switch to Radio')
     btn_orders = types.KeyboardButton('Switch to Orders')
     btn_play = types.KeyboardButton('⏹')
     btn_next = types.KeyboardButton('⏭')
