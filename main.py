@@ -22,9 +22,9 @@ def start_download_procedure(message):
         return downloader.load(message.text)
     new_link = convert(message.text)
     if new_link == "":
-        tb.send_message(message.from_user.id, "Ooops, cant find song from this link")
+        tb.send_message(message.chat.id, "Ooops, cant find song from this link")
         return []
-    tb.send_message(message.from_user.id, "Found this in youtube " + new_link)
+    tb.send_message(message.chat.id, "Found this in youtube " + new_link)
     try:
         res = downloader.load(new_link)
     except Exception as e:
@@ -40,81 +40,69 @@ def add_procedure(message, res_dict):
         for item in res_dict.get('entries'):
             cnt += 1
             msg_str += "#" + str(cnt) + " " + item.get('title') + "\n"
-        tb.send_message(message.from_user.id, msg_str)
+        tb.send_message(message.chat.id, msg_str)
         for item in res_dict.get('entries'):
             player.add_song(Song(item.get('title'), res_dict.get('title')))
-        tb.send_message(message.from_user.id, "Added " + str(cnt) + " songs in queue")
+        tb.send_message(message.chat.id, "Added " + str(cnt) + " songs in queue")
     else:
         player.add_song(Song(res_dict.get('title')))
-        tb.send_message(message.from_user.id, "Song \"" + res_dict.get('title') + "\" added in queue")
-
+        tb.send_message(message.chat.id, "Song \"" + res_dict.get('title') + "\" added in queue")
 
 
 @tb.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
     # or add KeyboardButton one row at a time:
     markup = get_admin_ui()
-    tb.send_message(message.from_user.id, "Choose what to do", reply_markup=markup)
-
-
-@tb.message_handler(commands=['shuffle_library'])
-def handle_start_help(message):
-    # or add KeyboardButton one row at a time:
-    player.shuffle_lib()
-    tb.send_message(message.from_user.id, "Done")
+    tb.send_message(message.chat.id, "Choose what to do", reply_markup=markup)
 
 
 @tb.message_handler(content_types=['text'])
 def handle_input(message):
     if message.text == 'Switch to Radio':
         player.switch_to_radio()
-        player.next()
-        tb.send_message(message.from_user.id, "Library")
+        player.play()
+        tb.send_message(message.chat.id, "Radio")
         return
     if message.text == 'Switch to Orders':
         player.switch_to_orders()
         player.next()
-        tb.send_message(message.from_user.id, "Orders")
+        tb.send_message(message.chat.id, "Orders")
         return
     if (message.text == '⏯') | (message.text == '▶️') | (message.text == '⏹'):
         if player.is_now_playing():
-            tb.send_message(message.from_user.id, "Stopping", reply_markup=get_admin_ui_play())
+            tb.send_message(message.chat.id, "Stopping", reply_markup=get_admin_ui_play())
             player.pause()
         else:
-            tb.send_message(message.from_user.id, "Lets Rock!", reply_markup=get_admin_ui_stop())
+            tb.send_message(message.chat.id, "Lets Rock!", reply_markup=get_admin_ui_stop())
             player.play()
         return
     if message.text == '⏭':
-        tb.send_message(message.from_user.id, "Setting \"" + player.get_next_song_name() + "\"")
         player.next()
+        tb.send_message(message.chat.id, "Setting \"" + player.get_song_name() + "\"")
         return
     if message.text == '⏮':
-        prev_song = player.get_prev_song_name()
-        if prev_song == "":
-            tb.send_message(message.from_user.id, "No more songs")
-            return
-        tb.send_message(message.from_user.id, "Setting \"" + prev_song +"\"")
         player.prev()
+        tb.send_message(message.chat.id, "Setting \"" + player.get_song_name() +"\"")
         return
     if message.text == 'Whats playing now?':
-        tb.send_message(message.from_user.id, player.current_song.name)
+        tb.send_message(message.chat.id, player.whats_playing())
         return
     if message.text == 'Help':
-        tb.send_message(message.from_user.id, "Just send me link")
+        tb.send_message(message.chat.id, "Just send me link")
         return
     else:  # https://youtu.be/JD8ZO5P9yzQ
         valid = validators.url(message.text)
         if valid:
-            tb.send_message(message.from_user.id, "Url is valid")
+            tb.send_message(message.chat.id, "Url is valid")
             print("Url is valid")
             res_dict = start_download_procedure(message)
             if len(res_dict) == 0:
-                tb.send_message(message.from_user.id, "Cant load this link")
+                tb.send_message(message.chat.id, "Cant load this link")
                 return
-            tb.send_message(message.from_user.id, "Link loaded")
+            tb.send_message(message.chat.id, "Link loaded")
             add_procedure(message, res_dict)
         else:
-            tb.send_message(message.from_user.id, "Invalid url")
+            tb.send_message(message.chat.id, "Invalid url")
 
 
 tb.polling(none_stop=True, interval=0)

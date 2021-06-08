@@ -25,6 +25,7 @@ class MyPlayer:
 
         self.orders_player = self.vlc_instance.media_list_player_new()
         self.orders_media_list = self.vlc_instance.media_list_new()
+        self.orders_player.set_playback_mode(0)
         self.orders_player.set_media_list(self.orders_media_list)
 
         self.player = self.radio_player
@@ -57,9 +58,15 @@ class MyPlayer:
             state = self.player.get_state()
             if state == vlc.State(6): #Ended
                 self.switch_to_radio()
+                self.play()
 
     def is_now_playing(self):
         return self.player.is_playing()
+
+    def whats_playing(self):
+        if self.is_from_radio:
+            return "Radio"
+        return "hard to tell"
 
     def play(self):
         # self.is_now_playing = True
@@ -73,7 +80,7 @@ class MyPlayer:
         # self.is_now_playing = False
         self.player.stop()
 
-    def next(self, play=True):
+    def next(self):
         # if len(self.up_next) == 0:
         #     if len(self.library) == 0:
         #         self.load_library()
@@ -89,10 +96,8 @@ class MyPlayer:
         if self.player.next() == -1:
             self.switch_to_radio()
             return "No more songs, going to radio"
-        if play:
-            self.play()
 
-    def prev(self, play=True):
+    def prev(self):
         # if len(self.history) == 0:
         #     return
         # song = self.history.pop()
@@ -102,8 +107,6 @@ class MyPlayer:
             return #this is radio dovboiob
         if self.player.previous() == -1:
             self.stop()
-            self.play()
-        if play:
             self.play()
 
     def add_song(self, song):
@@ -118,25 +121,11 @@ class MyPlayer:
             self.switch_to_orders()
             self.play()
 
-    def get_next_song_name(self):
+    def get_song_name(self):
         return "11111111"
         # if len(self.up_next) == 0:
         #     return self.history[0].name
         # return self.up_next[0].name
-
-    def get_prev_song_name(self):
-        return "11111111"
-        # if len(self.history) < 1:
-        #     return ""
-        # return self.history[len(self.history) - 1].name
-
-    def load_library(self):
-        self.library = music_library.get_song_library()
-
-    # def switch_to_library(self):
-    #     self.is_from_library = True
-    #     self.is_from_radio = False
-        # self.up_next = self.library
 
     def switch_to_orders(self):
         self.is_from_radio = False
@@ -148,5 +137,13 @@ class MyPlayer:
         self.stop()
         self.player = self.radio_player
 
-    def shuffle_lib(self):
-        random.shuffle(self.library)
+    # def shuffle_lib(self):
+    #     random.shuffle(self.library)
+    #
+    # def load_library(self):
+    #     self.library = music_library.get_song_library()
+    #
+    # def switch_to_library(self):
+    #     self.is_from_library = True
+    #     self.is_from_radio = False
+        # self.up_next = self.library
