@@ -49,6 +49,12 @@ def add_procedure(message, res_dict):
         tb.send_message(message.chat.id, "Song \"" + res_dict.get('title') + "\" added in queue")
 
 
+def is_not_admins_chat(chat_id):
+    if str(chat_id) == conf.admins_chat:
+        return False
+    return True
+
+
 @tb.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
     # or add KeyboardButton one row at a time:
@@ -56,19 +62,44 @@ def handle_start_help(message):
     tb.send_message(message.chat.id, "Choose what to do", reply_markup=markup)
 
 
-@tb.message_handler(content_types=['text'])
-def handle_input(message):
-    if message.text == 'Switch to Radio':
+@tb.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    # Если сообщение из чата с ботом
+    if call.message:
+        if player.is_from_radio:
+            player.stop()
+        player.load_station(call.data)
         player.switch_to_radio()
         player.play()
-        tb.send_message(message.chat.id, "Radio")
+        tb.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="OK")
+
+
+@tb.message_handler(content_types=['text'])
+def handle_input(message):
+    if message.text == 'Whats playing now?':
+        tb.send_message(message.chat.id, player.whats_playing())
+        return
+    if message.text == 'Help':
+        tb.send_message(message.chat.id, "Just send me link")
+        return
+    if message.text == 'Switch to Radio':
+        if is_not_admins_chat(message.chat.id):
+            return
+
+        # player.switch_to_radio()
+        # player.play()
+        tb.send_message(message.chat.id, "Radio stations:", reply_markup=get_radio_list_keyboard())
         return
     if message.text == 'Switch to Orders':
+        if is_not_admins_chat(message.chat.id):
+            return
         player.switch_to_orders()
         player.next()
         tb.send_message(message.chat.id, "Orders")
         return
     if (message.text == '⏯') | (message.text == '▶️') | (message.text == '⏹'):
+        if is_not_admins_chat(message.chat.id):
+            return
         if player.is_now_playing():
             tb.send_message(message.chat.id, "Stopping", reply_markup=get_admin_ui_play())
             player.pause()
@@ -77,18 +108,16 @@ def handle_input(message):
             player.play()
         return
     if message.text == '⏭':
+        if is_not_admins_chat(message.chat.id):
+            return
         player.next()
         tb.send_message(message.chat.id, "Setting \"" + player.get_song_name() + "\"")
         return
     if message.text == '⏮':
+        if is_not_admins_chat(message.chat.id):
+            return
         player.prev()
-        tb.send_message(message.chat.id, "Setting \"" + player.get_song_name() +"\"")
-        return
-    if message.text == 'Whats playing now?':
-        tb.send_message(message.chat.id, player.whats_playing())
-        return
-    if message.text == 'Help':
-        tb.send_message(message.chat.id, "Just send me link")
+        tb.send_message(message.chat.id, "Setting \"" + player.get_song_name() + "\"")
         return
     else:  # https://youtu.be/JD8ZO5P9yzQ
         valid = validators.url(message.text)

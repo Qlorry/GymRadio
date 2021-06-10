@@ -1,7 +1,5 @@
 import threading
 import time
-import random
-
 import vlc
 import music_library
 
@@ -69,40 +67,24 @@ class MyPlayer:
         return "hard to tell"
 
     def play(self):
-        # self.is_now_playing = True
         self.player.play()
 
     def pause(self):
-        # self.is_now_playing = False
         self.player.pause()
 
     def stop(self):
-        # self.is_now_playing = False
         self.player.stop()
 
     def next(self):
-        # if len(self.up_next) == 0:
-        #     if len(self.library) == 0:
-        #         self.load_library()
-        #     self.up_next = self.library
-        # song = self.up_next.pop(0)
-        # if len(self.history) > 100:
-        #     self.history.pop(0)
-        # if self.current_song is not None:
-        #     self.history.append(self.current_song)
-        # self.load(song)
         if self.is_from_radio:
             return #this is radio dovboiob
         if self.player.next() == -1:
             self.switch_to_radio()
+            self.play()
             return "No more songs, going to radio"
 
     def prev(self):
-        # if len(self.history) == 0:
-        #     return
-        # song = self.history.pop()
-        # self.up_next.insert(0, self.current_song)
-        # self.load(song)
+
         if self.is_from_radio:
             return #this is radio dovboiob
         if self.player.previous() == -1:
@@ -137,6 +119,11 @@ class MyPlayer:
         self.stop()
         self.player = self.radio_player
 
+    def load_station(self, station_name):
+        self.radio_media_list = self.vlc_instance.media_list_new()
+        media = self.vlc_instance.media_new("music/Radio/" + station_name + ".m3u")
+        self.radio_media_list.add_media(media)
+        self.radio_player.set_media_list(self.radio_media_list)
     # def shuffle_lib(self):
     #     random.shuffle(self.library)
     #

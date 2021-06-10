@@ -23,7 +23,7 @@ class Config:
         # Init values
         try:
             self.token = self.data['token']
-            self.admins = self.data['admins_chat']
+            self.admins_chat = self.data['admins_chat']
         except KeyError as e:
             print("No parameter " + str(e) + " in config")
             exit()
