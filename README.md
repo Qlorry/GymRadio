@@ -12,8 +12,13 @@
 
 ### Build
 
-      pyinstaller -F -n GymBot hello.py
+      pyinstaller -F -n GymBot main.py
       mkdir dist\music
       xcopy music dist\music /e /s
       copy ffmpeg.exe dist\ffmpeg.exe /y
+
+### Clear
+      
+      rmdir dist build /S /Q
+
    
