@@ -18,8 +18,8 @@ class MyPlayer:
     # VLC
         self.vlc_instance = vlc.Instance()
 
-        self.radio_player = self.vlc_instance.media_list_player_new()
-        self.radio_media_list = self.vlc_instance.media_list_new()
+        self.radio_player = vlc.MediaListPlayer()
+        self.radio_media_list = vlc.MediaList()
         self.radio_player.set_media_list(self.radio_media_list)
 
         self.orders_player = self.vlc_instance.media_list_player_new()
@@ -44,9 +44,8 @@ class MyPlayer:
     # BOOLS
         self.is_from_radio = True
 
-    def next_song_callback(event):
-        print
-        "listPlayerCallback:", event.type, event.u
+    def next_song_callback(self, event):
+        print("listPlayerCallback:", event.type)
 
     def check_thread(self):
         while True:
@@ -62,9 +61,10 @@ class MyPlayer:
         return self.player.is_playing()
 
     def whats_playing(self):
-        if self.is_from_radio:
-            return "Radio"
-        return self.get_song_name()
+        self.get_song_name()
+        # if self.is_from_radio:
+        #     return "Radio"
+        # return self.get_song_name()
 
     def play(self):
         self.player.play()
@@ -106,7 +106,8 @@ class MyPlayer:
             self.play()
 
     def get_song_name(self):
-        return "111"
+        obj = self.radio_media_list.media()
+        print(obj)
         # if len(self.up_next) == 0:
         #     return self.history[0].name
         # return self.up_next[0].name

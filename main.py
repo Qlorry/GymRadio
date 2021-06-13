@@ -127,6 +127,9 @@ def callback_inline(call):
 
 @tb.message_handler(content_types=['text'])
 def handle_input(message):
+    if message.text == "Whats playing now?":
+        player.whats_playing()
+        return
     valid = validators.url(message.text)
     if valid:
         tb.send_message(message.chat.id, url_ok)
