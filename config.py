@@ -2,7 +2,7 @@ import json
 
 filename = "config.json"
 
-template = {'token': '', 'admins_chat': ""}
+template = {'token': '', 'admins_chat': "", 'max_history_size': 100, "lang": "RU"}
 
 
 class Config:
@@ -12,10 +12,10 @@ class Config:
             config = open(filename, "r+")
         except FileNotFoundError as e:
             config = open(filename, "w")
-            default = json.dumps(template)
+            default = json.dumps(template, indent=4)
             config.write(default)
-            print("Config was not found, created new. Please fill it!")
             config.close()
+            print("Config was not found, created new. Please fill it!")
             exit()
         filedata = config.read()
         config.close()
@@ -37,8 +37,11 @@ class Config:
 
     def update_config(self):
         self.data['token'] = self.token
+        self.data['admins_chat'] = self.admins_chat
+        self.data['max_history_size'] = self.max_history_size
+        self.data['lang'] = self.lang
         config = open(filename, "w")
-        default = json.dumps(self.data)
+        default = json.dumps(self.data, indent=4)
         config.write(default)
         config.close()
 
