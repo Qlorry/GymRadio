@@ -24,9 +24,16 @@ class Config:
         try:
             self.token = self.data['token']
             self.admins_chat = self.data['admins_chat']
+            self.max_history_size = self.data['max_history_size']
+            self.lang = self.data['lang']
         except KeyError as e:
             print("No parameter " + str(e) + " in config")
             exit()
+
+        print("Token = ", self.token)
+        print("Admins chat ID = ", self.admins_chat)
+        print("Max history size = ", self.max_history_size)
+        print(self.lang)
 
     def update_config(self):
         self.data['token'] = self.token
@@ -34,3 +41,6 @@ class Config:
         default = json.dumps(self.data)
         config.write(default)
         config.close()
+
+
+conf = Config()

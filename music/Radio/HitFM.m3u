@@ -1,0 +1,21 @@
+#EXTM3U
+
+#EXTINF:-1, (Хіт FM - www.hitfm.ua)
+http://online.hitfm.ua/HitFM
+#EXTINF:-1, (Хіт FM - www.hitfm.ua)
+http://online.hitfm.ua/HitFM_Live
+
+#EXTINF:-1, (Хіт FM Українські хіти - www.hitfm.ua)
+http://online.hitfm.ua/HitFM_Ukr
+#EXTINF:-1, (Хіт FM Українські хіти - www.hitfm.ua)
+http://online.hitfm.ua/HitFM_Ukr_Live
+
+#EXTINF:-1, (Хіт FM Найбільші хіти - www.hitfm.ua)
+http://online.hitfm.ua/HitFM_Best
+#EXTINF:-1, (Хіт FM Найбільші хіти - www.hitfm.ua)
+http://online.hitfm.ua/HitFM_Best_Live
+
+#EXTINF:-1, (Хіт FM Сучасні хіти - www.hitfm.ua)
+http://online.hitfm.ua/HitFM_Top
+#EXTINF:-1, (Хіт FM Сучасні хіти - www.hitfm.ua)
+http://online.hitfm.ua/HitFM_Top_Live

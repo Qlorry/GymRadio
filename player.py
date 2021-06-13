@@ -2,6 +2,7 @@ import threading
 import time
 import vlc
 import music_library
+from config import conf
 
 defaultPlaylistId = "NA"
 
@@ -35,18 +36,17 @@ class MyPlayer:
         # UNLOCK
         self.radio_media_list.unlock()
 
-    # SONG LISTS
-    #     self.history = []
-    #     self.up_next = []
-        self.library = music_library.get_song_library()
-    #     self.order = []
-    # DATA NOW
-    #     self.current_song = None
-        # self.next(False)
+        list_player_events = self.orders_player.event_manager()
+        list_player_events.event_attach(vlc.EventType.MediaListPlayerNextItemSet, self.next_song_callback)
+    # THREAD
         self.th = threading.Thread(target=self.check_thread)
         self.th.start()
     # BOOLS
         self.is_from_radio = True
+
+    def next_song_callback(event):
+        print
+        "listPlayerCallback:", event.type, event.u
 
     def check_thread(self):
         while True:
@@ -64,7 +64,7 @@ class MyPlayer:
     def whats_playing(self):
         if self.is_from_radio:
             return "Radio"
-        return "hard to tell"
+        return self.get_song_name()
 
     def play(self):
         self.player.play()
@@ -96,6 +96,8 @@ class MyPlayer:
         # LOCK
         self.orders_media_list.lock()
         self.orders_media_list.add_media(media)
+        if self.orders_media_list.count() > conf.max_history_size:
+            self.orders_media_list.remove_index(0)
         #UNLOCK
         self.orders_media_list.unlock()
         # self.order.append(song)
@@ -104,7 +106,7 @@ class MyPlayer:
             self.play()
 
     def get_song_name(self):
-        return "11111111"
+        return "111"
         # if len(self.up_next) == 0:
         #     return self.history[0].name
         # return self.up_next[0].name

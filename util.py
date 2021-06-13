@@ -14,3 +14,11 @@ def is_youtube_link(url):
     if compare(url, 'https://www.youtube.com'):
         return True
     return False
+
+
+def is_not_admins_chat(chat_id, conf):
+    if str(chat_id) == conf.admins_chat:
+        return False
+    return True
+
+

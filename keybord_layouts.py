@@ -2,58 +2,29 @@ import telebot
 from telebot import types
 from music_library import get_radio_library
 
+
 def get_admin_ui():
     markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Radio')
-    btn_orders = types.KeyboardButton('Switch to Orders')
-    btn_play = types.KeyboardButton('⏯')
-    btn_next = types.KeyboardButton('⏭')
-    btn_prev = types.KeyboardButton('⏮')
+
+    btn_library = types.KeyboardButton('/radio')
+    btn_orders = types.KeyboardButton('/orders')
+    btn_play = types.KeyboardButton('/p_p ⏯')
+    btn_next = types.KeyboardButton('/n ⏭')
+    btn_prev = types.KeyboardButton('/p ⏮')
     btn_sound_up = types.KeyboardButton('Whats playing now?')
-    btn_sound_down = types.KeyboardButton('Help')
+    btn_stop = types.KeyboardButton('/s ⏹')
+    btn_sound_down = types.KeyboardButton('/help')
+
     markup.row(btn_library, btn_orders)
     markup.row(btn_prev, btn_play, btn_next)
-    markup.row(btn_sound_down, btn_sound_up)
+    markup.row(btn_sound_down, btn_stop, btn_sound_up)
     return markup
 
 
 def get_user_ui():
     markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Radio')
-    btn_orders = types.KeyboardButton('Switch to Orders')
     btn_sound_up = types.KeyboardButton('Whats playing now?')
     btn_sound_down = types.KeyboardButton('Help')
-    markup.row(btn_library, btn_orders)
-    markup.row(btn_sound_down, btn_sound_up)
-    return markup
-
-
-def get_admin_ui_play():
-    markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Radio')
-    btn_orders = types.KeyboardButton('Switch to Orders')
-    btn_play = types.KeyboardButton('▶️')
-    btn_next = types.KeyboardButton('⏭')
-    btn_prev = types.KeyboardButton('⏮')
-    btn_sound_up = types.KeyboardButton('Whats playing now?')
-    btn_sound_down = types.KeyboardButton('Help')
-    markup.row(btn_library, btn_orders)
-    markup.row(btn_prev, btn_play, btn_next)
-    markup.row(btn_sound_down, btn_sound_up)
-    return markup
-
-
-def get_admin_ui_stop():
-    markup = types.ReplyKeyboardMarkup()
-    btn_library = types.KeyboardButton('Switch to Radio')
-    btn_orders = types.KeyboardButton('Switch to Orders')
-    btn_play = types.KeyboardButton('⏹')
-    btn_next = types.KeyboardButton('⏭')
-    btn_prev = types.KeyboardButton('⏮')
-    btn_sound_up = types.KeyboardButton('Whats playing now?')
-    btn_sound_down = types.KeyboardButton('Help')
-    markup.row(btn_library, btn_orders)
-    markup.row(btn_prev, btn_play, btn_next)
     markup.row(btn_sound_down, btn_sound_up)
     return markup
 

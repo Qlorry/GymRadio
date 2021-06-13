@@ -1,4 +1,4 @@
-Windows installation: 
+### Windows installation:
 
 1. Download ffmpeg 
         
@@ -7,3 +7,13 @@ Windows installation:
 2. Download VLC
 
         https://www.videolan.org/vlc/index.ru.html
+
+3. Install requirements
+
+### Build
+
+      pyinstaller -F -n GymBot hello.py
+      mkdir dist\music
+      xcopy music dist\music /e /s
+      copy ffmpeg.exe dist\ffmpeg.exe /y
+   
