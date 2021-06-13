@@ -19,8 +19,6 @@ admin_instruction = "Что будем делать?"
 stop_msg = "Стоп"
 pause_msg = "Пауза"
 play_msg = "Поехали!"
-next_msg = "Включаю следующую"
-prev_msg = "Включаю предыдущую"
 
 radio_stations_msg = "Выберете радиостанцию:"
 
@@ -36,3 +34,7 @@ def found_n_songs(n):
 
 def song_name_added(name):
     return "Песня \"" + name + "\" добавлена в очередь"
+
+
+def setting_song(name):
+    return "Ставлю \"" + name + "\""

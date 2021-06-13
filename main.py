@@ -74,18 +74,18 @@ def handle_p_p(message):
 def handle_next(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
-    player.next()
-    tb.send_message(message.chat.id, next_msg)
-    # tb.send_message(message.chat.id, "Setting \"" + player.get_song_name() + "\"")
+    if player.next() == "Radio":
+        return
+    tb.send_message(message.chat.id, setting_song(player.whats_playing()))
 
 
 @tb.message_handler(commands=['p'])
 def handle_prev(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
-    player.prev()
-    tb.send_message(message.chat.id, prev_msg)
-    # tb.send_message(message.chat.id, "Setting \"" + player.get_song_name() + "\"")
+    if player.prev() == "Radio":
+        return
+    tb.send_message(message.chat.id, setting_song(player.whats_playing()))
 
 
 @tb.message_handler(commands=['s'])
@@ -128,7 +128,7 @@ def callback_inline(call):
 @tb.message_handler(content_types=['text'])
 def handle_input(message):
     if message.text == "Whats playing now?":
-        player.whats_playing()
+        tb.send_message(message.chat.id, player.whats_playing())
         return
     valid = validators.url(message.text)
     if valid:
