@@ -1,4 +1,5 @@
 import json
+from os import abort
 
 filename = "config.json"
 
@@ -16,7 +17,7 @@ class Config:
             config.write(default)
             config.close()
             print("Config was not found, created new. Please fill it!")
-            exit()
+            abort()
         filedata = config.read()
         config.close()
         self.data = json.loads(filedata)
@@ -28,7 +29,7 @@ class Config:
             self.lang = self.data['lang']
         except KeyError as e:
             print("No parameter " + str(e) + " in config")
-            exit()
+            abort()
 
         print("Token = ", self.token)
         print("Admins chat ID = ", self.admins_chat)

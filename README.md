@@ -10,7 +10,7 @@
 
 3. Install requirements
 
-### Build
+### Windows Build
 
       pyinstaller -F -n GymBot main.py
       mkdir dist\music
@@ -21,4 +21,13 @@
       
       rmdir dist build /S /Q
 
-   
+### Linux Build
+
+      pyinstaller -F -n GymBot main.py
+      mkdir dist
+      cp -avR music dist
+      cp /usr/local/opt/ffmpeg/bin/ffmpeg dist/ffmpeg
+
+### Clear
+      
+      rm -r dist build

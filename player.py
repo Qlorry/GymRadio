@@ -35,8 +35,8 @@ class MyPlayer:
         print(self.orders_media_list.count())
         self.orders_player.set_media_list(self.orders_media_list)
 
-        list_player_events = self.orders_player.event_manager()
-        list_player_events.event_attach(vlc.EventType.MediaListPlayerNextItemSet, self.next_song_callback)
+        # list_player_events = self.orders_player.event_manager()
+        # list_player_events.event_attach(vlc.EventType.MediaListPlayerNextItemSet, self.next_song_callback)
     # THREAD
         self.th = threading.Thread(target=self.check_thread)
         self.th.start()
@@ -106,8 +106,9 @@ class MyPlayer:
             self.orders_media_list.remove_index(0)
         #UNLOCK
         self.orders_media_list.unlock()
-        self.orders_media_list.set_media(media)
+        # self.orders_media_list.set_media(media)
         if self.is_from_radio:
+            self.orders_media_list.set_media(media)
             self.switch_to_orders()
             self.play()
 
