@@ -5,6 +5,7 @@ import music_library
 from config import conf
 import os
 
+mutex = threading.Lock()
 defaultPlaylistId = "NA"
 vlc_instance = vlc.Instance()
 
@@ -26,9 +27,11 @@ class OrdersListPlayer:
         print(player_events.event_attach(vlc.EventType.MediaPlayerEndReached, self.next_callback))
 
     def add_song(self, song):
+        mutex.acquire()
         self.orders_media_list.append(song)
         if len(self.orders_media_list) > conf.max_history_size:
             self.orders_media_list.pop(0)
+        mutex.release()
 
     def play(self):
         if self.current == -1:
@@ -53,44 +56,58 @@ class OrdersListPlayer:
         th.start()
 
     def next(self, play=False):
+        mutex.acquire()
         if self.current == -1 and len(self.orders_media_list) == 0:
+            mutex.release()
             return None
         if self.current + 1 >= len(self.orders_media_list):
             try:
                 self.end_callback()
+                mutex.release()
             except Exception as e:
                 return e
             return None
         played = self.is_playing()
-        self.orders_player.stop()
+        self.stop()
         self.current += 1
         self.load_current_song()
         if played or play:
             self.play()
+        mutex.release()
         return self.get_current_song()
 
     def previous(self):
+        mutex.acquire()
         if self.current == -1:
+            mutex.release()
             return None
         if self.current - 1 < 0:
             self.stop()
             self.play()
+            mutex.release()
             return self.get_current_song()
         played = self.is_playing()
-        self.orders_player.stop()
+        self.stop()
         self.current -= 1
         self.load_current_song()
         if played:
             self.play()
+        mutex.release()
         return self.get_current_song()
 
     def get_current_song(self):
+        mutex.acquire()
         if self.current == -1:
+            mutex.release()
             return None
-        return self.orders_media_list[self.current]
+        res = self.orders_media_list[self.current]
+        mutex.release()
+        return res
 
     def get_current_song_mrl(self):
-        song = self.get_current_song()
+        if self.current == -1:
+            return None
+        song = self.orders_media_list[self.current]
         return "music/" + song.playlistId + "/" + song.name + ".m4a"
 
     def load_current_song(self):
@@ -113,16 +130,8 @@ class SuperPlayer:
         # ORDERS
         self.orders_player = OrdersListPlayer()
         self.orders_player.set_callback(self.switch_to_radio)
-        # list_player_events = self.orders_player.event_manager()
-        # list_player_events.event_attach(vlc.EventType.MediaListPlayerNextItemSet, self.next_song_callback)
-        # THREAD
-        #     self.th = threading.Thread(target=self.check_thread)
-        # self.th.start()
         # BOOLS
         self.is_from_radio = True
-
-    def next_song_callback(self, event):
-        print("listPlayerCallback:", event.u.media)
 
     def check_thread(self):
         while True:
@@ -180,6 +189,7 @@ class SuperPlayer:
         self.is_from_radio = False
         self.stop()
         self.player = self.orders_player
+        self.play()
 
     def switch_to_radio(self):
         self.is_from_radio = True

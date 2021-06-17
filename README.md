@@ -13,8 +13,8 @@
 ### Windows Build
 
       pyinstaller -F -n GymBot main.py
-      mkdir dist\music
-      xcopy music dist\music /e /s
+      mkdir dist\music\Radio
+      xcopy music\Radio dist\music\Radio /e /s
       copy ffmpeg.exe dist\ffmpeg.exe /y
 
 ### Clear
