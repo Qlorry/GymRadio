@@ -4,7 +4,7 @@ import validators
 
 import util
 from downloader import Downloader
-from player import MyPlayer
+from player import SuperPlayer
 from player import Song
 from keybord_layouts import *
 from convertor import convert
@@ -14,7 +14,7 @@ from Lang.lang import *
 
 tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
-player = MyPlayer()
+player = SuperPlayer()
 
 
 def start_download_procedure(message):
@@ -51,6 +51,7 @@ def add_procedure(message, res_dict):
 
 @tb.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
+    print("Start from ", message.chat.id)
     if is_not_admins_chat(message.chat.id, conf):
         tb.send_message(message.chat.id, instruction)
         return
