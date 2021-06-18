@@ -5,13 +5,15 @@ import music_library
 from config import conf
 import os
 
-mutex = threading.Lock()
+#mutex = threading.Lock()
 defaultPlaylistId = "NA"
 vlc_instance = vlc.Instance()
 
 
 class Song:
     def __init__(self, name, playlistId=defaultPlaylistId):
+        name = name.replace("***", "_")
+
         self.name = name
         self.playlistId = playlistId
 
@@ -27,11 +29,11 @@ class OrdersListPlayer:
         print(player_events.event_attach(vlc.EventType.MediaPlayerEndReached, self.next_callback))
 
     def add_song(self, song):
-        mutex.acquire()
+        #mutex.acquire()
         self.orders_media_list.append(song)
         if len(self.orders_media_list) > conf.max_history_size:
             self.orders_media_list.pop(0)
-        mutex.release()
+        #mutex.release()
 
     def play(self):
         if self.current == -1:
@@ -56,52 +58,65 @@ class OrdersListPlayer:
         th.start()
 
     def next(self, play=False):
-        mutex.acquire()
-        if self.current == -1 and len(self.orders_media_list) == 0:
-            mutex.release()
-            return None
-        if self.current + 1 >= len(self.orders_media_list):
-            try:
-                self.end_callback()
-                mutex.release()
-            except Exception as e:
-                return e
-            return None
         played = self.is_playing()
-        self.stop()
-        self.current += 1
-        self.load_current_song()
-        if played or play:
-            self.play()
-        mutex.release()
-        return self.get_current_song()
+        while True:
+            try:
+                #mutex.acquire()
+                # Basic
+                if self.current == -1 and len(self.orders_media_list) == 0:
+                    #mutex.release()
+                    return None
+                if self.current + 1 >= len(self.orders_media_list):
+                    try:
+                        self.end_callback()
+                        #mutex.release()
+                    except Exception as e:
+                        return e
+                    return None
+                self.stop()
+                self.current += 1
+                if not self.load_current_song():
+                    #mutex.release()
+                    continue
+                if played or play:
+                    self.play()
+                #mutex.release()
+                return self.get_current_song()
+            except Exception:
+                continue
 
     def previous(self):
-        mutex.acquire()
-        if self.current == -1:
-            mutex.release()
-            return None
-        if self.current - 1 < 0:
-            self.stop()
-            self.play()
-            mutex.release()
-            return self.get_current_song()
-        played = self.is_playing()
-        self.stop()
-        self.current -= 1
-        self.load_current_song()
-        if played:
-            self.play()
-        mutex.release()
-        return self.get_current_song()
+        while True:
+            try:
+                #mutex.acquire()
+                # Basic
+                if self.current == -1:
+                    #mutex.release()
+                    return None
+                if self.current - 1 < 0:
+                    self.stop()
+                    self.play()
+                    #mutex.release()
+                    return self.get_current_song()
+                played = self.is_playing()
+                self.stop()
+                self.current -= 1
+                if not self.load_current_song():
+                    continue
+                if played:
+                    self.play()
+                #mutex.release()
+                return self.get_current_song()
+            except Exception:
+                continue
 
     def get_current_song(self):
-        mutex.acquire()
+        #mutex.acquire()
         if self.current == -1:
-            mutex.release()
+            #mutex.release()
             return None
         res = self.orders_media_list[self.current]
-        mutex.release()
+        #mutex.release()
         return res
 
     def get_current_song_mrl(self):
@@ -112,7 +127,14 @@ class OrdersListPlayer:
 
     def load_current_song(self):
         media = vlc.Media(self.get_current_song_mrl())
+        if media.get_state() == vlc.State.Error:
+            return False
         self.orders_player.set_media(media)
+        if media.get_state() == vlc.State.Error:
+            return False
+        if self.orders_player.get_state() == vlc.State.Error:
+            return False
+        return True
 
 
 class SuperPlayer:

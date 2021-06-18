@@ -37,23 +37,25 @@ def start_download_procedure(message):
 def add_procedure(message, res_dict):
     if '_type' in res_dict:
         cnt = 0
+        fails = 0
         msg_str = "Adding playlist: \n \n"
         list_msg = tb.send_message(message.chat.id, msg_str)
         for item in res_dict.get('entries'):
             if downloader.load(item['webpage_url']) is None:
                 cnt += 1
                 msg_str += "#" + str(cnt) + " " + item.get('title') + " -- Failed\n"
+                fails += 1
                 continue
             player.add_song(Song(item.get('title'), item.get('album')))
             cnt += 1
             msg_str += "#" + str(cnt) + " " + item.get('title') + "\n"
             # list_msg = tb.send_message(message.chat.id, msg_str)
             tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
-        msg_str += "\nДобавил " + str(cnt) + " песен"
+        msg_str += "\nДобавил " + str(cnt - fails) + " песен"
         tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
     else:
         downloader.load(res_dict['webpage_url'])
-        player.add_song(Song(res_dict.get('title')))
+        player.add_song(Song(res_dict.get('title'), res_dict.get('album')))
         tb.send_message(message.chat.id, song_name_added(res_dict.get('title')))
 
 
