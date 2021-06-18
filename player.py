@@ -12,8 +12,6 @@ vlc_instance = vlc.Instance()
 
 class Song:
     def __init__(self, name, playlistId=defaultPlaylistId):
-        name = name.replace("***", "_")
-
         self.name = name
         self.playlistId = playlistId
 
@@ -54,11 +52,10 @@ class OrdersListPlayer:
 
     def next_callback(self, e):
         print(e)
-        th = threading.Thread(target=self.next, args=[True])
+        th = threading.Thread(target=self.next)
         th.start()
 
-    def next(self, play=False):
-        played = self.is_playing()
+    def next(self):
         while True:
             try:
                 #mutex.acquire()
@@ -78,8 +75,7 @@ class OrdersListPlayer:
                 if not self.load_current_song():
                     #mutex.release()
                     continue
-                if played or play:
-                    self.play()
+                self.play()
                 #mutex.release()
                 return self.get_current_song()
             except Exception:
@@ -98,13 +94,11 @@ class OrdersListPlayer:
                     self.play()
                     #mutex.release()
                     return self.get_current_song()
-                played = self.is_playing()
                 self.stop()
                 self.current -= 1
                 if not self.load_current_song():
                     continue
-                if played:
-                    self.play()
+                self.play()
                 #mutex.release()
                 return self.get_current_song()
             except Exception:
@@ -126,7 +120,10 @@ class OrdersListPlayer:
         return "music/" + song.playlistId + "/" + song.name + ".m4a"
 
     def load_current_song(self):
-        media = vlc.Media(self.get_current_song_mrl())
+        mrl = self.get_current_song_mrl()
+        if not os.path.exists(mrl):
+            return
+        media = vlc.Media(mrl)
         if media.get_state() == vlc.State.Error:
             return False
         self.orders_player.set_media(media)
