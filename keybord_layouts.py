@@ -1,3 +1,5 @@
+import json
+
 import telebot
 from telebot import types
 from music_library import get_radio_library
@@ -11,9 +13,9 @@ def get_admin_ui():
     btn_play = types.KeyboardButton('/p_p ⏯')
     btn_next = types.KeyboardButton('/n ⏭')
     btn_prev = types.KeyboardButton('/p ⏮')
-    btn_sound_up = types.KeyboardButton('Whats playing now?')
+    btn_sound_up = types.KeyboardButton('/upnext')
     btn_stop = types.KeyboardButton('/s ⏹')
-    btn_sound_down = types.KeyboardButton('/help')
+    btn_sound_down = types.KeyboardButton('/history')
 
     markup.row(btn_library, btn_orders)
     markup.row(btn_prev, btn_play, btn_next)
@@ -33,6 +35,25 @@ def get_radio_list_keyboard():
     lib = get_radio_library()
     markup = types.InlineKeyboardMarkup()
     for station in lib:
-        btn = types.InlineKeyboardButton(text=station.name, callback_data=station.name)
+        data = json.dumps({"name": station.name,
+                           "cmd": "choose_radio"})
+        btn = types.InlineKeyboardButton(text=station.name, callback_data=data)
         markup.add(btn)
+    return markup
+
+
+def get_upnext_list_keyboard(songs, lastIndex):
+    markup = types.InlineKeyboardMarkup()
+    i = len(songs)
+    for song in songs:
+        data = json.dumps({"index": lastIndex - i,
+                           "name": song.name,
+                           "cmd": "next_song"})
+        i -= 1
+        btn = types.InlineKeyboardButton(text=song.name, callback_data=data)
+        markup.add(btn)
+    data = json.dumps({"lastIndex": lastIndex,
+                       "cmd": "more_upnext"})
+    btn = types.InlineKeyboardButton(text="More", callback_data=data)
+    markup.add(btn)
     return markup

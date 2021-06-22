@@ -141,6 +141,34 @@ class OrdersListPlayer:
             return False
         return True
 
+    def get_n_songs(self, _from, _to):
+        mutex.acquire()
+        if _from is None:
+            _from = self.current
+        have_songs = len(self.orders_media_list)
+        if self.current + 1 >= len(self.orders_media_list):
+            mutex.release()
+            return []
+        if _to >= have_songs:
+            _to = have_songs - 1
+        res = []
+        for i in range(_from, self.current + _to):
+            res.append(self.orders_media_list[i])
+        if _from == _to:
+            res.append(self.orders_media_list[_to])
+        mutex.release()
+        return res
+
+    def get_next_songs(self, n):
+        _from = self.current + 1
+        _to = _from + n
+
+        songs = self.get_n_songs(_from, _to)
+        return {
+            "lastIndex": _from + len(songs),
+            "list": songs
+        }
+
 
 class SuperPlayer:
     def __init__(self):
@@ -230,3 +258,16 @@ class SuperPlayer:
         self.radio_media_list.add_media(media)
         self.radio_media_list.set_media(media)
         self.radio_player.set_media_list(self.radio_media_list)
+
+    def get_n_songs(self, _from, _to):
+        if self.is_from_radio:
+            return []
+        return self.player.get_n_songs(_from, _to)
+
+    def get_next_songs(self, n):
+        if self.is_from_radio:
+            return {
+                "lastIndex": -1,
+                "list": []
+            }
+        return self.player.get_next_songs(n)

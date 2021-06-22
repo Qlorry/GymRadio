@@ -140,16 +140,58 @@ def handle_orders(message):
     tb.send_message(message.chat.id, "Orders")
 
 
+@tb.message_handler(commands=['history'])
+def handle_orders(message):
+    if is_not_admins_chat(message.chat.id, conf):
+        return
+    if not player.is_from_radio:
+        tb.send_message(message.chat.id, "Already playing")
+        return
+    logging.info("orders")
+    player.switch_to_orders()
+    player.next()
+    tb.send_message(message.chat.id, "Orders")
+
+
+@tb.message_handler(commands=['upnext'])
+def handle_orders(message):
+    if is_not_admins_chat(message.chat.id, conf):
+        return
+    logging.info("upnext")
+    songs = player.get_next_songs(5)
+    if len(songs["list"]) == 0:
+        logging.warning("No More songs for upnext")
+        return
+    tb.send_message(message.chat.id, radio_stations_msg, reply_markup=get_upnext_list_keyboard(songs["list"],
+                                                                                               songs["lastIndex"]))
+
+
 @tb.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     # Если сообщение из чата с ботом
     if call.message:
-        if player.is_from_radio:
+        data = json.loads(call.data)
+        if data["cmd"] == "choose_radio":
             player.stop()
-        player.load_station(call.data)
-        player.switch_to_radio()
-        player.play()
-        tb.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="OK")
+            player.load_station(data["name"])
+            player.switch_to_radio()
+            player.play()
+            tb.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="OK")
+        if data["cmd"] == "next_song":
+            logging.info("Want to play song " + data["name"] + " at " + data["index"])
+        if data["cmd"] == "more_upnext":
+            lastIndex = data["lastIndex"] + 5
+            songs = player.get_n_songs(data["lastIndex"], lastIndex)
+            logging.info("Want to see more songs")
+            if len(songs) == 0:
+                tb.edit_message_text(chat_id=call.message.chat.id,
+                                     message_id=call.message.message_id,
+                                     text="No more songs")
+                return
+            tb.edit_message_text(chat_id=call.message.chat.id,
+                                 message_id=call.message.message_id,
+                                 reply_markup=get_upnext_list_keyboard(songs, lastIndex),
+                                 text="Lol")
 
 
 @tb.message_handler(content_types=['text'])
