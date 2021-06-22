@@ -12,21 +12,21 @@
 
 ### Windows Build
 
-      pyinstaller -F -n GymBot main.py
-      mkdir dist\music\Radio
-      xcopy music\Radio dist\music\Radio /e /s
-      copy ffmpeg.exe dist\ffmpeg.exe /y
+      pyinstaller -F --distpath GymBot --specpath build -i ..\icon.ico -n GymBot main.py
+      mkdir GymBot\music\Radio
+      xcopy music\Radio GymBot\music\Radio /e /s
+      copy ffmpeg.exe GymBot\ffmpeg.exe /y
 
 ### Clear
       
-      rmdir dist build /S /Q
+      rmdir GymBot build /S /Q
 
 ### Linux Build
 
       pyinstaller -F -n GymBot main.py
-      mkdir dist
-      cp -avR music dist
-      cp /usr/local/opt/ffmpeg/bin/ffmpeg dist/ffmpeg
+      mkdir GymBot/Radio
+      cp -avR music/Radio GymBot/music
+      cp /usr/local/opt/ffmpeg/bin/ffmpeg GymBot/ffmpeg
 
 ### Clear
       

@@ -22,14 +22,14 @@ player = vlc.Instance()
 media_list = vlc.MediaList()
 
 # creating a new media
-media = player.media_new("music/NA/LITTLE BIG - EVERYBODY (Little Big Are Back) (Official Music Video).m4a")
+media = player.media_new("music/Radio/RadioROKS.m3u")
 
 # setting media object to the media list
 media_list.lock()
 media_list.add_media(media)
 media_list.unlock()
 media_list.set_media(media)
-
+media.release()
 
 # setting media list to the media player
 media_player.set_media_list(media_list)

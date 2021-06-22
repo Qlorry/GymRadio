@@ -1,3 +1,5 @@
+import logging
+
 from youtube_dl import YoutubeDL
 
 
@@ -11,10 +13,15 @@ class Downloader:
                                            })
 
     def load_info(self, url):
-        return self.audio_downloader.extract_info(url, download=False)
+        try:
+            return self.audio_downloader.extract_info(url, download=False)
+        except Exception as e:
+            logging.warning("Error loading song info" + str(e))
+            return []
 
     def load(self, url):
         try:
             return self.audio_downloader.extract_info(url)
-        except Exception:
+        except Exception as e:
+            logging.warning("Error downloading song" + str(e))
             return None

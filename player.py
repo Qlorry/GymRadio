@@ -12,6 +12,8 @@ vlc_instance = vlc.Instance()
 
 class Song:
     def __init__(self, name, playlistId=defaultPlaylistId):
+        if playlistId is None:
+            playlistId = defaultPlaylistId
         self.name = name
         self.playlistId = playlistId
 
@@ -68,6 +70,7 @@ class OrdersListPlayer:
                         self.end_callback()
                         mutex.release()
                     except Exception as e:
+                        mutex.release()
                         return e
                     return None
                 self.stop()
@@ -79,6 +82,7 @@ class OrdersListPlayer:
                 mutex.release()
                 return self.get_current_song()
             except Exception:
+                mutex.release()
                 continue
 
     def previous(self):
@@ -97,11 +101,13 @@ class OrdersListPlayer:
                 self.stop()
                 self.current -= 1
                 if not self.load_current_song():
+                    mutex.release()
                     continue
                 self.play()
                 mutex.release()
                 return self.get_current_song()
             except Exception:
+                mutex.release()
                 continue
 
     def get_current_song(self):
@@ -125,8 +131,10 @@ class OrdersListPlayer:
             return
         media = vlc.Media(mrl)
         if media.get_state() == vlc.State.Error:
+            media.release()
             return False
         self.orders_player.set_media(media)
+        media.release()
         if media.get_state() == vlc.State.Error:
             return False
         if self.orders_player.get_state() == vlc.State.Error:

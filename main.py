@@ -1,6 +1,9 @@
+import datetime
+
 import telebot
 from telebot import types
 import validators
+import logging
 
 import util
 from downloader import Downloader
@@ -12,6 +15,10 @@ from config import conf
 from util import *
 from Lang.lang import *
 
+date_on_start = datetime.datetime.now()
+logfilename = "Logs/"+date_on_start.strftime("%y-%m-%d %H-%M") + ".log"
+logging.basicConfig(filename=logfilename, level=logging.INFO)
+rm_old_logs()
 tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
 player = SuperPlayer()
@@ -20,22 +27,19 @@ player.play()
 
 def start_download_procedure(message):
     if util.is_youtube_link(message.text):
+        logging.info("Loading YT link")
         return downloader.load_info(message.text)
     new_link = convert(message.text)
     if new_link == "":
         tb.send_message(message.chat.id, song_not_found)
         return []
     tb.send_message(message.chat.id, found_this + new_link)
-    try:
-        res = downloader.load_info(new_link)
-    except Exception as e:
-        print("Error while downloading " + str(e))
-        return []
-    return res
+    return downloader.load_info(new_link)
 
 
 def add_procedure(message, res_dict):
     if '_type' in res_dict:
+        logging.info("Adding playlist")
         cnt = 0
         fails = 0
         msg_str = "Adding playlist: \n \n"
@@ -54,6 +58,7 @@ def add_procedure(message, res_dict):
         msg_str += "\nДобавил " + str(cnt - fails) + " песен"
         tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
     else:
+        logging.info("Adding single song " + res_dict.get('title'))
         downloader.load(res_dict['webpage_url'])
         player.add_song(Song(res_dict.get('title'), res_dict.get('album')))
         tb.send_message(message.chat.id, song_name_added(res_dict.get('title')))
@@ -62,6 +67,7 @@ def add_procedure(message, res_dict):
 @tb.message_handler(commands=['start', 'help'])
 def handle_start_help(message):
     print("Start from ", message.chat.id)
+    logging.info("start/help")
     if is_not_admins_chat(message.chat.id, conf):
         tb.send_message(message.chat.id, instruction)
         return
@@ -73,10 +79,13 @@ def handle_start_help(message):
 def handle_p_p(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
+
     if player.is_now_playing():
         tb.send_message(message.chat.id, pause_msg)
         player.pause()
+        logging.info("pause")
     else:
+        logging.info("play")
         tb.send_message(message.chat.id, play_msg)
         player.play()
 
@@ -87,6 +96,7 @@ def handle_next(message):
         return
     if player.next() == "Radio":
         return
+    logging.info("next")
     tb.send_message(message.chat.id, setting_song(player.whats_playing()))
 
 
@@ -96,12 +106,16 @@ def handle_prev(message):
         return
     if player.prev() == "Radio":
         return
+    logging.info("prev")
     tb.send_message(message.chat.id, setting_song(player.whats_playing()))
 
 
 @tb.message_handler(commands=['s'])
 def handle_stop(message):
+    if is_not_admins_chat(message.chat.id, conf):
+        return
     player.stop()
+    logging.info("stop")
     tb.send_message(message.chat.id, stop_msg)
 
 
@@ -109,6 +123,7 @@ def handle_stop(message):
 def handle_radio(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
+    logging.info("radio")
     tb.send_message(message.chat.id, radio_stations_msg, reply_markup=get_radio_list_keyboard())
 
 
@@ -119,6 +134,7 @@ def handle_orders(message):
     if not player.is_from_radio:
         tb.send_message(message.chat.id, "Already playing")
         return
+    logging.info("orders")
     player.switch_to_orders()
     player.next()
     tb.send_message(message.chat.id, "Orders")
@@ -147,11 +163,13 @@ def handle_input(message):
         print("Url is valid")
         res_dict = start_download_procedure(message)
         if len(res_dict) == 0:
+            logging.warning("No info for link!")
             tb.send_message(message.chat.id, url_cant_load)
             return
         tb.send_message(message.chat.id, url_loaded)
         add_procedure(message, res_dict)
     else:
+        logging.info("Invalid Link")
         tb.send_message(message.chat.id, url_bad)
 
 

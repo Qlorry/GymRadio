@@ -12,7 +12,7 @@ play_msg = "Lets Rock!"
 
 radio_stations_msg = "Radio stations:"
 
-url_ok = "Url is valid"
+url_ok = "Processing url"
 url_bad = "Invalid url"
 url_cant_load = "Cant load this link"
 url_loaded = "Link loaded"
