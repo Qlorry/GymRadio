@@ -1,6 +1,9 @@
 import logging
+import os
+import re
 
 from youtube_dl import YoutubeDL
+defaultPlaylistId = "NA"
 
 
 class Downloader:
@@ -9,7 +12,8 @@ class Downloader:
                                            'outtmpl': 'music/%(album)s/%(title)s.m4a',
                                            'postprocessors': [{
                                                'key': 'FFmpegMetadata'
-                                           }]
+                                           }],
+                                           'restrictfilenames': True
                                            })
 
     def load_info(self, url):

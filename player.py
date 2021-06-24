@@ -1,21 +1,26 @@
 import threading
 import time
 import vlc
-import music_library
+import logging
 from config import conf
 import os
+from downloader import defaultPlaylistId
+from youtube_dl.utils import sanitize_filename, sanitize_path
 
 mutex = threading.Lock()
-defaultPlaylistId = "NA"
 vlc_instance = vlc.Instance()
 
 
 class Song:
-    def __init__(self, name, playlistId=defaultPlaylistId):
-        if playlistId is None:
-            playlistId = defaultPlaylistId
+    def __init__(self, name, album=defaultPlaylistId):
+        if album is None:
+            album = defaultPlaylistId
         self.name = name
-        self.playlistId = playlistId
+        self.playlistId = album
+
+        sanitized_name = sanitize_filename(name, restricted=True)
+        sanitized_album = sanitize_filename(album, restricted=True)
+        self.path = sanitize_path("music/" + sanitized_album + "/" + sanitized_name + ".m4a")
 
 
 class OrdersListPlayer:
@@ -123,7 +128,7 @@ class OrdersListPlayer:
         if self.current == -1:
             return None
         song = self.orders_media_list[self.current]
-        return "music/" + song.playlistId + "/" + song.name + ".m4a"
+        return song.path
 
     def load_current_song(self):
         mrl = self.get_current_song_mrl()
