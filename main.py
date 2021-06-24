@@ -7,8 +7,8 @@ import logging
 
 import util
 from downloader import Downloader
-from player import SuperPlayer
-from player import Song
+from Player.SuperPlayer import SuperPlayer
+from Player.Song import Song
 from keybord_layouts import *
 from convertor import convert
 from config import conf
@@ -141,19 +141,6 @@ def handle_orders(message):
     tb.send_message(message.chat.id, "Orders")
 
 
-@tb.message_handler(commands=['history'])
-def handle_orders(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
-    if not player.is_from_radio:
-        tb.send_message(message.chat.id, "Already playing")
-        return
-    logging.info("orders")
-    player.switch_to_orders()
-    player.next()
-    tb.send_message(message.chat.id, "Orders")
-
-
 @tb.message_handler(commands=['upnext'])
 def handle_orders(message):
     if is_not_admins_chat(message.chat.id, conf):
@@ -167,6 +154,19 @@ def handle_orders(message):
                                                                                                songs["lastIndex"]))
 
 
+@tb.message_handler(commands=['history'])
+def handle_orders(message):
+    if is_not_admins_chat(message.chat.id, conf):
+        return
+    logging.info("history")
+    songs = player.get_prev_songs(5)
+    if len(songs["list"]) == 0:
+        logging.warning("No More songs for history")
+        return
+    tb.send_message(message.chat.id, radio_stations_msg, reply_markup=get_history_list_keyboard(songs["list"],
+                                                                                               songs["firstIndex"]))
+
+
 @tb.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     # Если сообщение из чата с ботом
@@ -178,8 +178,11 @@ def callback_inline(call):
             player.switch_to_radio()
             player.play()
             tb.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="OK")
-        if data["cmd"] == "next_song":
-            logging.info("Want to play song " + data["name"] + " at " + data["index"])
+        if data["cmd"] == "set_song":
+            logging.info("Want to play song " + data["name"] + " at " + str(data["index"]))
+            player.stop()
+            player.go_to(data["index"])
+            player.play()
         if data["cmd"] == "more_upnext":
             lastIndex = data["lastIndex"] + 5
             songs = player.get_n_songs(data["lastIndex"], lastIndex)
@@ -192,6 +195,21 @@ def callback_inline(call):
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
                                  reply_markup=get_upnext_list_keyboard(songs, lastIndex),
+                                 text="Lol")
+        if data["cmd"] == "more_history":
+            firstIndex = data["firstIndex"] - 5
+            songs = player.get_n_songs(firstIndex, data["firstIndex"] - 1)
+            if firstIndex < 0:
+                firstIndex = 0
+            logging.info("Want to see more songs")
+            if len(songs) == 0:
+                tb.edit_message_text(chat_id=call.message.chat.id,
+                                     message_id=call.message.message_id,
+                                     text="No more songs")
+                return
+            tb.edit_message_text(chat_id=call.message.chat.id,
+                                 message_id=call.message.message_id,
+                                 reply_markup=get_history_list_keyboard(songs, firstIndex),
                                  text="Lol")
 
 

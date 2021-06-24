@@ -47,13 +47,30 @@ def get_upnext_list_keyboard(songs, lastIndex):
     i = len(songs)
     for song in songs:
         data = json.dumps({"index": lastIndex - i,
-                           "name": song.name,
-                           "cmd": "next_song"})
+                           "name": song.name[0:20],
+                           "cmd": "set_song"})
         i -= 1
-        btn = types.InlineKeyboardButton(text=song.name, callback_data=data)
+        btn = types.InlineKeyboardButton(text=song.name[0:20], callback_data=data)
         markup.add(btn)
     data = json.dumps({"lastIndex": lastIndex,
                        "cmd": "more_upnext"})
+    btn = types.InlineKeyboardButton(text="More", callback_data=data)
+    markup.add(btn)
+    return markup
+
+
+def get_history_list_keyboard(songs, firstIndex):
+    markup = types.InlineKeyboardMarkup()
+    i = len(songs) - 1
+    for song in reversed(songs):
+        data = json.dumps({"index": firstIndex + i,
+                           "name": song.name[0:20],
+                           "cmd": "set_song"})
+        i -= 1
+        btn = types.InlineKeyboardButton(text=song.name[0:20], callback_data=data)
+        markup.add(btn)
+    data = json.dumps({"firstIndex": firstIndex,
+                       "cmd": "more_history"})
     btn = types.InlineKeyboardButton(text="More", callback_data=data)
     markup.add(btn)
     return markup
