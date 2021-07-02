@@ -69,7 +69,7 @@ class OrdersListPlayer:
                     continue
                 self.play()
                 mutex.release()
-                return self.get_current_song()
+                return self.get_current()
             except Exception:
                 mutex.release()
                 continue
@@ -86,7 +86,7 @@ class OrdersListPlayer:
                     self.stop()
                     self.play()
                     mutex.release()
-                    return self.get_current_song()
+                    return self.get_current()
                 self.stop()
                 self.current -= 1
                 if not self.load_current_song():
@@ -94,7 +94,8 @@ class OrdersListPlayer:
                     continue
                 self.play()
                 mutex.release()
-                return self.get_current_song()
+
+                return self.get_current()
             except Exception:
                 mutex.release()
                 continue
@@ -124,7 +125,7 @@ class OrdersListPlayer:
             logging.error(str(e))
             return False
 
-    def get_current_song(self):
+    def get_current(self):
         mutex.acquire()
         if self.current == -1:
             mutex.release()

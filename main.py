@@ -194,10 +194,10 @@ def callback_inline(call):
         data = json.loads(call.data)
         if data["cmd"] == "choose_radio":
             player.stop()
-            player.load_station(data["name"])
+            name = player.load_station(data["name"])
             player.switch_to_radio()
             player.play()
-            tb.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="OK")
+            tb.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Setting " + name)
         if data["cmd"] == "set_song":
             logging.info("Want to play song " + data["name"] + " at " + str(data["index"]))
             player.stop()
