@@ -174,29 +174,53 @@ class OrdersListPlayer:
         if _from < 0:
             _from = 0
         res = []
-        for i in range(_from, _to):
+        for i in range(_from, _to + 1):  # end not included
             res.append(self.orders_media_list[i])
-        if _from == _to:
-            res.append(self.orders_media_list[_to])
         mutex.release()
         return res
 
     def get_next_songs(self, n):
         _from = self.current + 1
-        _to = _from + n
+        _to = _from + n - 1
 
         songs = self.get_n_songs(_from, _to)
         return {
-            "lastIndex": _from + len(songs),
+            "lastIndex": _from + len(songs) - 1,  # _from already included in songs
             "list": songs
         }
 
     def get_prev_songs(self, n):
-        _from = self.current - 6
+        _from = self.current - n
         _to = self.current - 1
 
         songs = self.get_n_songs(_from, _to)
         return {
-            "firstIndex": _to - len(songs),
+            "firstIndex": _to - len(songs) + 1,
             "list": songs
         }
+
+    def get_all_next_songs(self):
+        _from = self.current + 1
+        _to = len(self.orders_media_list) - 1
+
+        songs = self.get_n_songs(_from, _to)
+        return {
+            "lastIndex": _to,
+            "list": songs
+        }
+
+    def get_all_prev_songs(self):
+        _from = 0
+        _to = self.current - 1
+
+        songs = self.get_n_songs(_from, _to)
+        return {
+            "firstIndex": _to,
+            "list": songs
+        }
+
+    def get_all_songs(self):
+        mutex.acquire()
+        songs = self.orders_media_list
+        mutex.release()
+        return songs

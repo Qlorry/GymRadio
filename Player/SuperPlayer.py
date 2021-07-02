@@ -65,7 +65,8 @@ class SuperPlayer:
 
     def next(self):
         if self.is_from_radio:
-            return "Radio"
+            self.player.next()
+            self.player.next()
         return self.player.next()
 
     def prev(self):
@@ -124,3 +125,11 @@ class SuperPlayer:
         self.orders_player.go_to(index)
         if self.is_from_radio:
             self.switch_to_orders()
+
+    def get_all_songs(self):
+        return self.orders_player.get_all_songs()
+
+    def get_current_index(self):
+        if self.is_from_radio:
+            return None
+        return self.orders_player.current

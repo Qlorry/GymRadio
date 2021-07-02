@@ -1,9 +1,9 @@
 import datetime
-
 import telebot
 from telebot import types
 import validators
 import logging
+import signal
 
 import util
 from downloader import Downloader
@@ -48,7 +48,7 @@ def add_procedure(message, res_dict):
             loaded_song = downloader.load(item['webpage_url'])
             if loaded_song is None:
                 cnt += 1
-                msg_str += "#" + str(cnt) + " " + loaded_song.get('title') + " -- Failed\n"
+                msg_str += "#" + str(cnt) + " " + item.get('title') + " -- Failed\n"
                 fails += 1
                 continue
             player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
@@ -167,6 +167,26 @@ def handle_orders(message):
                                                                                                songs["firstIndex"]))
 
 
+@tb.message_handler(commands=['list'])
+def handle_orders(message):
+    logging.info("list")
+    songs = player.get_all_songs()
+    if len(songs) == 0:
+        logging.warning("No songs in media player")
+        tb.send_message(message.chat.id, "List is empty")
+        return
+    current = player.get_current_index()
+    msg = ""
+    cnt = 1
+    for s in songs:
+        if cnt - 1 == current:
+            msg += "-> # " + str(cnt) + s.name + "\n"
+        else:
+            msg += "# " + str(cnt) + s.name + "\n"
+        cnt += 1
+    tb.send_message(message.chat.id, msg)
+
+
 @tb.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     # Если сообщение из чата с ботом
@@ -184,17 +204,18 @@ def callback_inline(call):
             player.go_to(data["index"])
             player.play()
         if data["cmd"] == "more_upnext":
-            lastIndex = data["lastIndex"] + 5
-            songs = player.get_n_songs(data["lastIndex"], lastIndex)
+            last_index = data["lastIndex"] + 5  # 1 + 5 not to get last song in that list
+            songs = player.get_n_songs(data["lastIndex"] + 1, last_index)
             logging.info("Want to see more songs")
             if len(songs) == 0:
                 tb.edit_message_text(chat_id=call.message.chat.id,
                                      message_id=call.message.message_id,
                                      text="No more songs")
                 return
+            last_index = data["lastIndex"] + len(songs)
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
-                                 reply_markup=get_upnext_list_keyboard(songs, lastIndex),
+                                 reply_markup=get_upnext_list_keyboard(songs, last_index),
                                  text="Lol")
         if data["cmd"] == "more_history":
             firstIndex = data["firstIndex"] - 5
