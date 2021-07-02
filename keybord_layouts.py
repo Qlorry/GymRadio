@@ -44,7 +44,7 @@ def get_radio_list_keyboard():
 
 def get_upnext_list_keyboard(songs, lastIndex):
     markup = types.InlineKeyboardMarkup()
-    i = len(songs)
+    i = len(songs) - 1
     for song in songs:
         data = json.dumps({"index": lastIndex - i,
                            "name": song.name[0:20],
