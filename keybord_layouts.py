@@ -42,17 +42,17 @@ def get_radio_list_keyboard():
     return markup
 
 
-def get_upnext_list_keyboard(songs, lastIndex):
+def get_upnext_list_keyboard(songs, last_index):
     markup = types.InlineKeyboardMarkup()
     i = len(songs) - 1
     for song in songs:
-        data = json.dumps({"index": lastIndex - i,
+        data = json.dumps({"index": last_index - i,
                            "name": song.name[0:20],
                            "cmd": "set_song"})
         i -= 1
         btn = types.InlineKeyboardButton(text=song.name[0:20], callback_data=data)
         markup.add(btn)
-    data = json.dumps({"lastIndex": lastIndex,
+    data = json.dumps({"lastIndex": last_index,
                        "cmd": "more_upnext"})
     btn = types.InlineKeyboardButton(text="More", callback_data=data)
     markup.add(btn)

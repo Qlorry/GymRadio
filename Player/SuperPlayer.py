@@ -14,7 +14,7 @@ vlc_instance = vlc.Instance()
 class SuperPlayer:
     def __init__(self):
         # RADIO
-        self.radio_player = RadioPlayer("KissFM")
+        self.radio_player = RadioPlayer(conf.default_station)
         # ORDERS
         self.orders_player = OrdersListPlayer()
         self.orders_player.set_callback(self.switch_to_radio)

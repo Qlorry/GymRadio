@@ -80,11 +80,10 @@ def handle_start_help(message):
 def handle_p_p(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
-
     if player.is_now_playing():
+        logging.info("pause")
         tb.send_message(message.chat.id, pause_msg)
         player.pause()
-        logging.info("pause")
     else:
         logging.info("play")
         tb.send_message(message.chat.id, play_msg)
@@ -95,20 +94,24 @@ def handle_p_p(message):
 def handle_next(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
-    if player.next() == "Radio":
+    res = player.next()
+    if res is None:
+        tb.send_message(message.chat.id, "Something went wrong")
         return
     logging.info("next")
-    tb.send_message(message.chat.id, setting_song(player.whats_playing()))
+    tb.send_message(message.chat.id, setting_song(res))
 
 
 @tb.message_handler(commands=['p'])
 def handle_prev(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
-    if player.prev() == "Radio":
+    res = player.prev()
+    if res is None:
+        tb.send_message(message.chat.id, "Something went wrong")
         return
     logging.info("prev")
-    tb.send_message(message.chat.id, setting_song(player.whats_playing()))
+    tb.send_message(message.chat.id, setting_song(res))
 
 
 @tb.message_handler(commands=['s'])
@@ -149,8 +152,9 @@ def handle_orders(message):
     songs = player.get_next_songs(5)
     if len(songs["list"]) == 0:
         logging.warning("No More songs for upnext")
+        tb.send_message(message.chat.id, "No more songs in queue")
         return
-    tb.send_message(message.chat.id, radio_stations_msg, reply_markup=get_upnext_list_keyboard(songs["list"],
+    tb.send_message(message.chat.id, "Next songs:\n", reply_markup=get_upnext_list_keyboard(songs["list"],
                                                                                                songs["lastIndex"]))
 
 
@@ -162,8 +166,9 @@ def handle_orders(message):
     songs = player.get_prev_songs(5)
     if len(songs["list"]) == 0:
         logging.warning("No More songs for history")
+        tb.send_message(message.chat.id, "No more songs in history")
         return
-    tb.send_message(message.chat.id, radio_stations_msg, reply_markup=get_history_list_keyboard(songs["list"],
+    tb.send_message(message.chat.id, "Previous songs:\n", reply_markup=get_history_list_keyboard(songs["list"],
                                                                                                songs["firstIndex"]))
 
 
@@ -187,6 +192,12 @@ def handle_orders(message):
     tb.send_message(message.chat.id, msg)
 
 
+@tb.message_handler(commands=['now'])
+def handle_orders(message):
+    logging.info("Want's now")
+    tb.send_message(chat_id=message.chat.id, text=player.whats_playing())
+
+
 @tb.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     # Если сообщение из чата с ботом
@@ -203,6 +214,9 @@ def callback_inline(call):
             player.stop()
             player.go_to(data["index"])
             player.play()
+            tb.edit_message_text(chat_id=call.message.chat.id,
+                                 message_id=call.message.message_id,
+                                 text="Setting " + data["name"])
         if data["cmd"] == "more_upnext":
             last_index = data["lastIndex"] + 5  # 1 + 5 not to get last song in that list
             songs = player.get_n_songs(data["lastIndex"] + 1, last_index)
@@ -216,7 +230,7 @@ def callback_inline(call):
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
                                  reply_markup=get_upnext_list_keyboard(songs, last_index),
-                                 text="Lol")
+                                 text="Next songs:\n")
         if data["cmd"] == "more_history":
             firstIndex = data["firstIndex"] - 5
             songs = player.get_n_songs(firstIndex, data["firstIndex"] - 1)
@@ -231,7 +245,7 @@ def callback_inline(call):
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
                                  reply_markup=get_history_list_keyboard(songs, firstIndex),
-                                 text="Lol")
+                                 text="Previous songs:\n")
 
 
 @tb.message_handler(content_types=['text'])
