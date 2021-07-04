@@ -35,6 +35,7 @@ class Config:
         print("Token = ", self.token)
         print("Admins chat ID = ", self.admins_chat)
         print("Max history size = ", self.max_history_size)
+        print("Default station = ", self.default_station)
         print(self.lang)
 
     def update_config(self):
