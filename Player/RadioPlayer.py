@@ -53,14 +53,14 @@ class RadioPlayer:
         self.load_sub_stations(station_name)
 
         self.radio_media_list = vlc.MediaList()
-        media = vlc.Media("music/Radio/" + station_name + ".m3u")
+        media = vlc.Media("Radio/" + station_name + ".m3u")
         self.radio_media_list.add_media(media)
         self.radio_media_list.set_media(media)
         self.radio_player.set_media_list(self.radio_media_list)
         return self.sub_stations[self.station_index]
 
     def load_sub_stations(self, station_name):
-        file = open("music/Radio/" + station_name + ".m3u", "r+")
+        file = open("Radio/" + station_name + ".m3u", "r+")
         filedata = file.readlines()
         file.close()
         index = 1

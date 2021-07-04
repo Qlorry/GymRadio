@@ -1,7 +1,7 @@
 import json
 import os
 
-file = open("music/Radio/RadioROKS.m3u", "r+")
+file = open("Radio/RadioROKS.m3u", "r+")
 filedata = file.readlines()
 file.close()
 index = 1
