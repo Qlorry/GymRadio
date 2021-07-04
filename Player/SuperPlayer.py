@@ -81,25 +81,23 @@ class SuperPlayer:
         return self.radio_player.load_station(station_name)
 
     def get_n_songs(self, _from, _to):
-        if self.is_from_radio:
-            return []
-        return self.player.get_n_songs(_from, _to)
+        return self.orders_player.get_n_songs(_from, _to)
 
     def get_next_songs(self, n):
-        if self.is_from_radio:
-            return {
-                "lastIndex": -1,
-                "list": []
-            }
-        return self.player.get_next_songs(n)
+        # if self.is_from_radio:
+        #     return {
+        #         "lastIndex": -1,
+        #         "list": []
+        #     }
+        return self.orders_player.get_next_songs(n)
 
     def get_prev_songs(self, n):
-        if self.is_from_radio:
-            return {
-                "firstIndex": -1,
-                "list": []
-            }
-        return self.player.get_prev_songs(n)
+        # if self.is_from_radio:
+        #     return {
+        #         "firstIndex": -1,
+        #         "list": []
+        #     }
+        return self.orders_player.get_prev_songs(n)
 
     def go_to(self, index):
         self.orders_player.go_to(index)

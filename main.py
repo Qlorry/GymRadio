@@ -99,7 +99,7 @@ def handle_next(message):
         tb.send_message(message.chat.id, "Something went wrong")
         return
     logging.info("next")
-    tb.send_message(message.chat.id, setting_song(res))
+    tb.send_message(message.chat.id, setting_song(res.name))
 
 
 @tb.message_handler(commands=['p'])
@@ -140,7 +140,6 @@ def handle_orders(message):
         return
     logging.info("orders")
     player.switch_to_orders()
-    player.next()
     tb.send_message(message.chat.id, "Orders")
 
 

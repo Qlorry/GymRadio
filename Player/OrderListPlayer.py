@@ -164,9 +164,9 @@ class OrdersListPlayer:
         if have_songs == 1:
             mutex.release()
             return []
-        if self.current + 1 >= len(self.orders_media_list):
-            mutex.release()
-            return []
+        # if self.current + 1 >= len(self.orders_media_list):
+        #     mutex.release()
+        #     return []
         if _from < 0 and _to < 0:
             mutex.release()
             return []
