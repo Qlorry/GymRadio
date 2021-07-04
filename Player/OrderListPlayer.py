@@ -4,42 +4,46 @@ import logging
 from config import conf
 import os
 
-mutex = threading.Lock()
-
 
 class OrdersListPlayer:
     def __init__(self):
-        self.orders_player = vlc.MediaPlayer()
-        self.orders_media_list = []
-        self.current = -1
-        self.end_callback = None
-
-        player_events = self.orders_player.event_manager()
+        self._mutex = threading.Lock()
+        self._orders_player = vlc.MediaPlayer()
+        self._orders_media_list = []
+        self._current = -1
+        self._end_callback = None
+        player_events = self._orders_player.event_manager()
         print(player_events.event_attach(vlc.EventType.MediaPlayerEndReached, self.next_callback))
 
+    def current(self):
+        self._mutex.acquire()
+        curr = self._current
+        self._mutex.release()
+        return curr
+
     def add_song(self, song):
-        mutex.acquire()
-        self.orders_media_list.append(song)
-        if len(self.orders_media_list) > conf.max_history_size:
-            self.orders_media_list.pop(0)
-        mutex.release()
+        self._mutex.acquire()
+        self._orders_media_list.append(song)
+        if len(self._orders_media_list) > conf.max_history_size:
+            self._orders_media_list.pop(0)
+        self._mutex.release()
 
     def play(self):
-        if self.current == -1:
+        if self._current == -1:
             return
-        return self.orders_player.play()
+        return self._orders_player.play()
 
     def pause(self):
-        return self.orders_player.pause()
+        return self._orders_player.pause()
 
     def is_playing(self):
-        return self.orders_player.is_playing()
+        return self._orders_player.is_playing()
 
     def set_callback(self, callback_func):
-        self.end_callback = callback_func
+        self._end_callback = callback_func
 
     def stop(self):
-        return self.orders_player.stop()
+        return self._orders_player.stop()
 
     def next_callback(self, e):
         print(e)
@@ -49,95 +53,95 @@ class OrdersListPlayer:
     def next(self):
         while True:
             try:
-                mutex.acquire()
+                self._mutex.acquire()
                 # Basic
-                if self.current == -1 and len(self.orders_media_list) == 0:
-                    mutex.release()
+                if self._current == -1 and len(self._orders_media_list) == 0:
+                    self._mutex.release()
                     return None
-                if self.current + 1 >= len(self.orders_media_list):
+                if self._current + 1 >= len(self._orders_media_list):
                     try:
-                        self.end_callback()
-                        mutex.release()
+                        self._end_callback()
+                        self._mutex.release()
                     except Exception as e:
-                        mutex.release()
+                        self._mutex.release()
                         return e
                     return None
                 self.stop()
-                self.current += 1
+                self._current += 1
                 if not self.load_current_song():
-                    mutex.release()
+                    self._mutex.release()
                     continue
                 self.play()
-                mutex.release()
+                self._mutex.release()
                 return self.get_current()
             except Exception:
-                mutex.release()
+                self._mutex.release()
                 continue
 
     def previous(self):
         while True:
             try:
-                mutex.acquire()
+                self._mutex.acquire()
                 # Basic
-                if self.current == -1:
-                    mutex.release()
+                if self._current == -1:
+                    self._mutex.release()
                     return None
-                if self.current - 1 < 0:
+                if self._current - 1 < 0:
                     self.stop()
                     self.play()
-                    mutex.release()
+                    self._mutex.release()
                     return self.get_current()
                 self.stop()
-                self.current -= 1
+                self._current -= 1
                 if not self.load_current_song():
-                    mutex.release()
+                    self._mutex.release()
                     continue
                 self.play()
-                mutex.release()
+                self._mutex.release()
 
                 return self.get_current()
             except Exception:
-                mutex.release()
+                self._mutex.release()
                 continue
 
     def go_to(self, index):
         try:
-            mutex.acquire()
+            self._mutex.acquire()
             # Basic
-            if self.current == index:
-                mutex.release()
+            if self._current == index:
+                self._mutex.release()
                 return False
-            if index < 0 or index >= len(self.orders_media_list):
-                mutex.release()
+            if index < 0 or index >= len(self._orders_media_list):
+                self._mutex.release()
                 logging.error("Invalid index")
                 return False
             self.stop()
-            self.current = index
+            self._current = index
             if not self.load_current_song():
-                mutex.release()
+                self._mutex.release()
                 self.next()
                 return False
             self.play()
-            mutex.release()
+            self._mutex.release()
             return True
         except Exception as e:
-            mutex.release()
+            self._mutex.release()
             logging.error(str(e))
             return False
 
     def get_current(self):
-        mutex.acquire()
-        if self.current == -1:
-            mutex.release()
+        self._mutex.acquire()
+        if self._current == -1:
+            self._mutex.release()
             return None
-        res = self.orders_media_list[self.current]
-        mutex.release()
+        res = self._orders_media_list[self._current]
+        self._mutex.release()
         return res
 
     def get_current_song_mrl(self):
-        if self.current == -1:
+        if self._current == -1:
             return None
-        song = self.orders_media_list[self.current]
+        song = self._orders_media_list[self._current]
         return song.path
 
     def load_current_song(self):
@@ -148,27 +152,27 @@ class OrdersListPlayer:
         if media.get_state() == vlc.State.Error:
             media.release()
             return False
-        self.orders_player.set_media(media)
+        self._orders_player.set_media(media)
         media.release()
         if media.get_state() == vlc.State.Error:
             return False
-        if self.orders_player.get_state() == vlc.State.Error:
+        if self._orders_player.get_state() == vlc.State.Error:
             return False
         return True
 
     def get_n_songs(self, _from, _to):
-        mutex.acquire()
+        self._mutex.acquire()
         if _from is None:
-            _from = self.current
-        have_songs = len(self.orders_media_list)
+            _from = self._current
+        have_songs = len(self._orders_media_list)
         if have_songs == 1:
-            mutex.release()
+            self._mutex.release()
             return []
-        # if self.current + 1 >= len(self.orders_media_list):
-        #     mutex.release()
+        # if self._current + 1 >= len(self._orders_media_list):
+        #     self._mutex.release()
         #     return []
         if _from < 0 and _to < 0:
-            mutex.release()
+            self._mutex.release()
             return []
         if _to >= have_songs:
             _to = have_songs - 1
@@ -176,12 +180,12 @@ class OrdersListPlayer:
             _from = 0
         res = []
         for i in range(_from, _to + 1):  # end not included
-            res.append(self.orders_media_list[i])
-        mutex.release()
+            res.append(self._orders_media_list[i])
+        self._mutex.release()
         return res
 
     def get_next_songs(self, n):
-        _from = self.current + 1
+        _from = self._current + 1
         _to = _from + n - 1
 
         songs = self.get_n_songs(_from, _to)
@@ -191,8 +195,8 @@ class OrdersListPlayer:
         }
 
     def get_prev_songs(self, n):
-        _from = self.current - n
-        _to = self.current - 1
+        _from = self._current - n
+        _to = self._current - 1
 
         songs = self.get_n_songs(_from, _to)
         return {
@@ -201,8 +205,8 @@ class OrdersListPlayer:
         }
 
     def get_all_next_songs(self):
-        _from = self.current + 1
-        _to = len(self.orders_media_list) - 1
+        _from = self._current + 1
+        _to = len(self._orders_media_list) - 1
 
         songs = self.get_n_songs(_from, _to)
         return {
@@ -212,7 +216,7 @@ class OrdersListPlayer:
 
     def get_all_prev_songs(self):
         _from = 0
-        _to = self.current - 1
+        _to = self._current - 1
 
         songs = self.get_n_songs(_from, _to)
         return {
@@ -221,7 +225,7 @@ class OrdersListPlayer:
         }
 
     def get_all_songs(self):
-        mutex.acquire()
-        songs = self.orders_media_list
-        mutex.release()
+        self._mutex.acquire()
+        songs = self._orders_media_list
+        self._mutex.release()
         return songs

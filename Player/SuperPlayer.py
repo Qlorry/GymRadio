@@ -1,7 +1,5 @@
 import time
 import vlc
-import logging
-import os
 
 from Player.OrderListPlayer import OrdersListPlayer
 from Player.RadioPlayer import RadioPlayer

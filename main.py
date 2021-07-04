@@ -1,9 +1,7 @@
 import datetime
-import telebot
-from telebot import types
 import validators
 import logging
-import signal
+
 
 import util
 from downloader import Downloader
@@ -11,13 +9,12 @@ from Player.SuperPlayer import SuperPlayer
 from Player.Song import Song
 from keybord_layouts import *
 from convertor import convert
-from config import conf
 from util import *
 from Lang.lang import *
 
 date_on_start = datetime.datetime.now()
-logfilename = "Logs/"+date_on_start.strftime("%y-%m-%d %H-%M") + ".log"
-logging.basicConfig(filename=logfilename, level=logging.INFO)
+log_filename = "Logs/"+date_on_start.strftime("%y-%m-%d %H-%M") + ".log"
+logging.basicConfig(filename=log_filename, level=logging.INFO)
 rm_old_logs()
 tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
@@ -154,7 +151,7 @@ def handle_orders(message):
         tb.send_message(message.chat.id, "No more songs in queue")
         return
     tb.send_message(message.chat.id, "Next songs:\n", reply_markup=get_upnext_list_keyboard(songs["list"],
-                                                                                               songs["lastIndex"]))
+                                                                                            songs["lastIndex"]))
 
 
 @tb.message_handler(commands=['history'])
@@ -167,8 +164,9 @@ def handle_orders(message):
         logging.warning("No More songs for history")
         tb.send_message(message.chat.id, "No more songs in history")
         return
-    tb.send_message(message.chat.id, "Previous songs:\n", reply_markup=get_history_list_keyboard(songs["list"],
-                                                                                               songs["firstIndex"]))
+    tb.send_message(message.chat.id,
+                    "Previous songs:\n",
+                    reply_markup=get_history_list_keyboard(songs["list"], songs["firstIndex"]))
 
 
 @tb.message_handler(commands=['list'])
@@ -207,7 +205,9 @@ def callback_inline(call):
             name = player.load_station(data["name"])
             player.switch_to_radio()
             player.play()
-            tb.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="Setting " + name)
+            tb.edit_message_text(chat_id=call.message.chat.id,
+                                 message_id=call.message.message_id,
+                                 text="Setting " + name)
         if data["cmd"] == "set_song":
             logging.info("Want to play song " + data["name"] + " at " + str(data["index"]))
             player.stop()
@@ -231,10 +231,10 @@ def callback_inline(call):
                                  reply_markup=get_upnext_list_keyboard(songs, last_index),
                                  text="Next songs:\n")
         if data["cmd"] == "more_history":
-            firstIndex = data["firstIndex"] - 5
-            songs = player.get_n_songs(firstIndex, data["firstIndex"] - 1)
-            if firstIndex < 0:
-                firstIndex = 0
+            first_index = data["firstIndex"] - 5
+            songs = player.get_n_songs(first_index, data["firstIndex"] - 1)
+            if first_index < 0:
+                first_index = 0
             logging.info("Want to see more songs")
             if len(songs) == 0:
                 tb.edit_message_text(chat_id=call.message.chat.id,
@@ -243,7 +243,7 @@ def callback_inline(call):
                 return
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
-                                 reply_markup=get_history_list_keyboard(songs, firstIndex),
+                                 reply_markup=get_history_list_keyboard(songs, first_index),
                                  text="Previous songs:\n")
 
 
