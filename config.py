@@ -3,7 +3,7 @@ from os import abort
 
 filename = "config.json"
 
-template = {'token': '', 'admins_chat': "", 'max_history_size': 100, "lang": "RU", "default_station": "KissFM"}
+template = {'token': '', 'admins_chat': "0", 'max_history_size': 100, "lang": "RU", "default_station": "KissFM"}
 
 
 class Config:

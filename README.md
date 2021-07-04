@@ -40,7 +40,7 @@
 
 1. Get your bot API token from FatherBot
 2. Run app to get default config
-3. Set _token_ to your API token, _admins_chat_ to "0"
+3. Set _token_ to your API token
 4. Start bot
 5. Create admins chat
       1. Start bot
