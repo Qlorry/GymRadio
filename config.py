@@ -11,7 +11,7 @@ class Config:
         # try read
         try:
             config = open(filename, "r+")
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             config = open(filename, "w")
             default = json.dumps(template, indent=4)
             config.write(default)

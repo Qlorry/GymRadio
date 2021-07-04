@@ -32,19 +32,19 @@ def is_not_admins_chat(chat_id, conf):
 def rm_old_logs():
     cnt = 0
     oldest = None
-    oldestfile = None
+    oldest_file = None
     for root, subdirs, files in os.walk('Logs'):
         for filename in files:
             cnt += 1
             time = os.path.getctime("Logs/"+filename)
             if oldest is None:
                 oldest = time
-                oldestfile = filename
+                oldest_file = filename
             if time < oldest:
                 oldest = time
-                oldestfile = filename
+                oldest_file = filename
             if cnt > 2:
                 try:
-                    os.remove("Logs/"+oldestfile)
+                    os.remove("Logs/"+oldest_file)
                 except Exception:
                     print()

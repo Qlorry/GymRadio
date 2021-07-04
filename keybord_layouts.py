@@ -1,6 +1,5 @@
 import json
 
-import telebot
 from telebot import types
 from music_library import get_radio_library
 
@@ -59,17 +58,17 @@ def get_upnext_list_keyboard(songs, last_index):
     return markup
 
 
-def get_history_list_keyboard(songs, firstIndex):
+def get_history_list_keyboard(songs, first_index):
     markup = types.InlineKeyboardMarkup()
     i = len(songs) - 1
     for song in reversed(songs):
-        data = json.dumps({"index": firstIndex + i,
+        data = json.dumps({"index": first_index + i,
                            "name": song.name[0:20],
                            "cmd": "set_song"})
         i -= 1
         btn = types.InlineKeyboardButton(text=song.name[0:20], callback_data=data)
         markup.add(btn)
-    data = json.dumps({"firstIndex": firstIndex,
+    data = json.dumps({"firstIndex": first_index,
                        "cmd": "more_history"})
     btn = types.InlineKeyboardButton(text="More", callback_data=data)
     markup.add(btn)
