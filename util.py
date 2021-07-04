@@ -16,6 +16,10 @@ def is_youtube_link(url):
         return True
     if compare(url, 'https://www.youtube.com'):
         return True
+    if compare(url, 'https://youtube.com'):
+        return True
+    if compare(url, 'https://youtu.be'):
+        return True
     return False
 
 
