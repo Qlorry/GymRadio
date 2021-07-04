@@ -53,10 +53,20 @@ class SuperPlayer:
         self.player.stop()
 
     def next(self):
-        return self.player.next()
+        if self.is_from_radio:
+            return self.player.next()
+        res = self.player.next()
+        if res is not None:
+            return res.name
+        return None
 
     def prev(self):
-        return self.player.previous()
+        if self.is_from_radio:
+            return self.player.previous()
+        res = self.player.previous()
+        if res is not None:
+            return res.name
+        return None
 
     def add_song(self, song):
         self.orders_player.add_song(song)

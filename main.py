@@ -94,12 +94,12 @@ def handle_p_p(message):
 def handle_next(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
-    res = player.next()
-    if res is None:
+    song_name = player.next()
+    if song_name is None:
         tb.send_message(message.chat.id, "Something went wrong")
         return
     logging.info("next")
-    tb.send_message(message.chat.id, setting_song(res.name))
+    tb.send_message(message.chat.id, setting_song(song_name))
 
 
 @tb.message_handler(commands=['p'])
