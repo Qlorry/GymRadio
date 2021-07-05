@@ -15,7 +15,7 @@ from Lang.lang import *
 date_on_start = datetime.datetime.now()
 log_filename = "Logs/"+date_on_start.strftime("%y-%m-%d %H-%M") + ".log"
 logging.basicConfig(filename=log_filename, level=logging.INFO)
-rm_old_logs()
+# rm_old_logs()
 tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
 player = SuperPlayer()

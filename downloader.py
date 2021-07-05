@@ -4,14 +4,14 @@ from youtube_dl import YoutubeDL
 defaultPlaylistId = "NA"
 
 
+# 'restrictfilenames': True
 class Downloader:
     def __init__(self):
         self.audio_downloader = YoutubeDL({'format': 'm4a',
                                            'outtmpl': 'music/%(album)s/%(title)s.m4a',
                                            'postprocessors': [{
                                                'key': 'FFmpegMetadata'
-                                           }],
-                                           'restrictfilenames': True
+                                           }]
                                            })
 
     def load_info(self, url):
