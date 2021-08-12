@@ -58,6 +58,9 @@ def add_procedure(message, res_dict):
     else:
         logging.info("Adding single song " + res_dict.get('title'))
         loaded_song = downloader.load(res_dict['webpage_url'])
+        if loaded_song is None:
+            tb.send_message(message.chat.id, res_dict.get('title') + " -- Failed\n")
+            return
         player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
         tb.send_message(message.chat.id, song_name_added(loaded_song.get('title')))
 
@@ -199,24 +202,24 @@ def handle_orders(message):
 def callback_inline(call):
     # Если сообщение из чата с ботом
     if call.message:
-        data = json.loads(call.data)
-        if data["cmd"] == "choose_radio":
+        data = yaml.load(call.data, Loader=yaml.Loader)
+        if data["c"] == "choose_radio":
             player.stop()
-            name = player.load_station(data["name"])
+            name = player.load_station(data["n"])
             player.switch_to_radio()
             player.play()
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
                                  text="Setting " + name)
-        if data["cmd"] == "set_song":
-            logging.info("Want to play song " + data["name"] + " at " + str(data["index"]))
+        if data["c"] == "set":
+            logging.info("Want to play song " + " at " + str(data["i"]))
             player.stop()
-            player.go_to(data["index"])
+            player.go_to(data["i"])
             player.play()
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
-                                 text="Setting " + data["name"])
-        if data["cmd"] == "more_upnext":
+                                 text="Setting " + player.whats_playing())
+        if data["c"] == "more_upnext":
             last_index = data["lastIndex"] + 5  # 1 + 5 not to get last song in that list
             songs = player.get_n_songs(data["lastIndex"] + 1, last_index)
             logging.info("Want to see more songs")
@@ -230,7 +233,7 @@ def callback_inline(call):
                                  message_id=call.message.message_id,
                                  reply_markup=get_upnext_list_keyboard(songs, last_index),
                                  text="Next songs:\n")
-        if data["cmd"] == "more_history":
+        if data["c"] == "more_history":
             first_index = data["firstIndex"] - 5
             songs = player.get_n_songs(first_index, data["firstIndex"] - 1)
             if first_index < 0:
