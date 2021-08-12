@@ -81,7 +81,7 @@ class SuperPlayer:
 
     def switch_to_radio(self):
         self.is_from_radio = True
-        self.stop()
+        self.pause()
         self.player = self.radio_player
         self.play()
 

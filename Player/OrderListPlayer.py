@@ -2,6 +2,7 @@ import threading
 import vlc
 import logging
 from config import conf
+import util
 import os
 
 
@@ -146,7 +147,7 @@ class OrdersListPlayer:
 
     def load_current_song(self):
         mrl = self.get_current_song_mrl()
-        if not os.path.exists(mrl):
+        if not util.is_song_p_in_os(mrl):
             return
         media = vlc.Media(mrl)
         if media.get_state() == vlc.State.Error:

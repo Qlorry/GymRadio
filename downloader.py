@@ -1,4 +1,5 @@
 import logging
+import util
 
 from youtube_dl import YoutubeDL
 defaultPlaylistId = "NA"
@@ -23,7 +24,12 @@ class Downloader:
 
     def load(self, url):
         try:
-            return self.audio_downloader.extract_info(url)
+            res = self.audio_downloader.extract_info(url)
+            name = res.get('title') if res.get('title') is not None else ""
+            album = res.get('album') if res.get('album') is not None else "NA"
+            if not util.is_song_in_os(album, name):
+                return None
+            return res
         except Exception as e:
             logging.warning("Error downloading song" + str(e))
             return None

@@ -1,4 +1,5 @@
 import os
+from youtube_dl.utils import sanitize_filename, sanitize_path
 
 
 def compare(str1, str2):
@@ -48,3 +49,18 @@ def rm_old_logs():
                     os.remove("Logs/"+oldest_file)
                 except Exception:
                     print()
+
+
+def is_song_in_os(album, name):
+    sanitized_name = sanitize_filename(name, restricted=False)
+    sanitized_album = sanitize_filename(album, restricted=False)
+    path = sanitize_path("music/" + sanitized_album + "/" + sanitized_name + ".m4a")
+    if not os.path.exists(path):
+        return False
+    return True
+
+
+def is_song_p_in_os(path):
+    if not os.path.exists(path):
+        return False
+    return True
