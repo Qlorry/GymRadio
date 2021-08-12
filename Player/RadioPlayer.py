@@ -26,6 +26,7 @@ class RadioPlayer:
         return self.radio_player.is_playing()
 
     def stop(self):
+        self.station_index = 0
         return self.radio_player.stop()
 
     def next(self):
