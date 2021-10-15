@@ -64,7 +64,7 @@ class RadioPlayer:
         file = open("Radio/" + station_name + ".m3u", "r+")
         filedata = file.readlines()
         file.close()
-        index = 1
+        index = 3
         self.sub_stations.clear()
         while index < len(filedata):
             url = filedata[index + 2]

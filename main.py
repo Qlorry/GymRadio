@@ -1,4 +1,6 @@
 import datetime
+import threading
+
 import validators
 import logging
 import telebot
@@ -12,6 +14,9 @@ from convertor import convert
 from util import *
 from Lang.lang import *
 
+from UI.main_ui import Window
+
+
 date_on_start = datetime.datetime.now()
 log_filename = "Logs/"+date_on_start.strftime("%y-%m-%d %H-%M") + ".log"
 logging.basicConfig(filename=log_filename, level=logging.INFO)
@@ -20,6 +25,7 @@ tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
 player = SuperPlayer()
 player.play()
+ui = Window(player)
 
 
 def start_download_procedure(message):
@@ -287,4 +293,15 @@ def handle_input(message):
         tb.send_message(message.chat.id, url_bad)
 
 
-tb.polling(none_stop=True, interval=0)
+def start_bot():
+    tb.polling(none_stop=True, interval=0)
+
+
+def main():
+    th = threading.Thread(target=start_bot)
+    th.start()
+    ui.start()
+
+
+if __name__ == "__main__":
+    main()
