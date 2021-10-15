@@ -230,3 +230,23 @@ class OrdersListPlayer:
         songs = self._orders_media_list
         self._mutex.release()
         return songs
+
+    def swap(self, first_index, second_index):
+        self._mutex.acquire()
+        if first_index == self._current or second_index == self._current :
+            return
+        if first_index == second_index:
+            return
+
+        if first_index > second_index:
+            t = first_index
+            first_index = second_index
+            second_index = t
+
+        f_song = self._orders_media_list.pop(first_index - 1)
+        s_song = self._orders_media_list.pop(second_index - 2)
+
+        self._orders_media_list.insert(first_index - 1, s_song)
+        self._orders_media_list.insert(second_index - 1, f_song)
+
+        self._mutex.release()

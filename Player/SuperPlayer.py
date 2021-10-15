@@ -118,4 +118,9 @@ class SuperPlayer:
     def get_current_index(self):
         if self.is_from_radio:
             return None
-        return self.orders_player.current
+        return self.orders_player.current()
+
+    def swap(self, first, second):
+        if self.is_from_radio:
+            return None
+        return self.orders_player.swap(first, second)

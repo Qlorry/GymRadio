@@ -2,6 +2,7 @@ youtube-dl
 pyTelegramBotAPI
 python-vlc
 urllib3
-validators~=0.18.2
-requests~=2.25.1
+validators
+requests
 pyinstaller
+PyYAML

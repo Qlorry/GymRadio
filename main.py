@@ -202,6 +202,18 @@ def handle_orders(message):
     tb.send_message(chat_id=message.chat.id, text=player.whats_playing())
 
 
+@tb.message_handler(commands=['swap'])
+def handle_orders(message):
+    if is_not_admins_chat(message.chat.id, conf):
+        return
+    logging.info("swap")
+    command = message.text.split()
+    try:
+        player.swap(int(command[1]), int(command[2]))
+    except():
+        return
+
+
 @tb.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     # Если сообщение из чата с ботом
