@@ -26,12 +26,16 @@ def start_download_procedure(message):
     if util.is_youtube_link(message.text):
         logging.info("Loading YT link")
         return downloader.load_info(message.text)
-    new_link = convert(message.text)
-    if new_link == "":
+    new_links = convert(message.text)
+    if len(new_links) == 0:
         tb.send_message(message.chat.id, song_not_found)
         return []
-    tb.send_message(message.chat.id, found_this + new_link)
-    return downloader.load_info(new_link)
+    for link in new_links:
+        result = downloader.load_info(link)
+        if len(result) != 0:
+            tb.send_message(message.chat.id, found_this + link)
+            return result
+    return []
 
 
 def add_procedure(message, res_dict):
@@ -185,9 +189,9 @@ def handle_orders(message):
     cnt = 1
     for s in songs:
         if cnt - 1 == current:
-            msg += "-> # " + str(cnt) + s.name + "\n"
+            msg += "-> " + str(cnt) + " " + s.name + "\n"
         else:
-            msg += "# " + str(cnt) + s.name + "\n"
+            msg += "# " + str(cnt) + " " + s.name + "\n"
         cnt += 1
     tb.send_message(message.chat.id, msg)
 

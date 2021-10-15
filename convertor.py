@@ -14,14 +14,15 @@ def get_data_in_json(request_link):
 
 
 def get_yt_link(data_json):
-    temp = data_json['linksByPlatform'].get('youtubeMusic')
-    if temp is None:
-        temp = data_json['linksByPlatform'].get('youtube')
-        if temp is None:
-            return ""
-    temp = temp.get('url')
-    if temp is None:
-        return ""
+    temp = []
+    youtubeMusic = data_json['linksByPlatform'].get('youtubeMusic')
+    if youtubeMusic is not None:
+        temp.append(youtubeMusic.get('url'))
+
+    youtube = data_json['linksByPlatform'].get('youtube')
+    if youtube is not None:
+        temp.append(youtube.get('url'))
+
     print(temp)
     return temp
 
@@ -35,5 +36,5 @@ def convert(url):
     if data_dict.get('statusCode') is not None:
         if data_dict['statusCode'] == 400:
             return ""
-    yt_link = get_yt_link(data_dict)
-    return yt_link
+    yt_links = get_yt_link(data_dict)
+    return yt_links
