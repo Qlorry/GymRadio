@@ -10,6 +10,7 @@ class Downloader:
     def __init__(self):
         self.audio_downloader = YoutubeDL({'format': 'm4a',
                                            'outtmpl': 'music/%(album)s/%(title)s.m4a',
+                                           'nooverwrites': True,
                                            'postprocessors': [{
                                                'key': 'FFmpegMetadata'
                                            }]
