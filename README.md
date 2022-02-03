@@ -15,10 +15,10 @@
 
 ### Windows Build
 
-      pyinstaller -F --distpath GymBot --specpath build -i ..\icon.ico -n GymBot main.py
-      mkdir GymBot\Radio GymBot\Logs
-      xcopy Radio GymBot\Radio /e /s /y
-      copy ffmpeg.exe GymBot\ffmpeg.exe /y
+      pyinstaller -F --distpath _BuildGymBot --specpath build -i ..\BuildRelated\icon.ico -n GymBot main.py
+      mkdir _BuildGymBot\Radio _BuildGymBot\Logs
+      xcopy Radio _BuildGymBot\Radio /e /s /y
+      copy ffmpeg.exe _BuildGymBot\ffmpeg.exe /y
 
 ### Clear
       
@@ -26,26 +26,26 @@
 
 ### Linux Build
 
-      pyinstaller -F --distpath GymBot --specpath build -i ../icon.ico -n GymBot main.py
-      mkdir GymBot/Radio GymBot/Logs
-      cp -avR Radio GymBot
-      cp /usr/local/opt/ffmpeg/bin/ffmpeg GymBot/ffmpeg
+      pyinstaller -F --distpath _BuildGymBot --specpath build -i ../BuildRelated/icon.ico -n GymBot main.py
+      mkdir _BuildGymBot/Radio _BuildGymBot/Logs
+      cp -avR Radio _BuildGymBot
+      cp /usr/local/opt/ffmpeg/bin/ffmpeg _BuildGymBot/ffmpeg
 
 ### Clear
       
-      rm -r dist build
+      rm -r build _BuildGymBot
 
 
 ### Run instruction
 
 1. Get your bot API token from FatherBot
-2. Run app to get default config
+2. Run bot app to get default config
 3. Set _token_ to your API token
-4. Start bot
-5. Create admins chat
-      1. Start bot
-      2. Add bot in chat
-      3. Write start
+4. Restart bot app
+5. Create admins chat(can be your own chat with bot)
+      1. Restart bot app
+      2. Add bot to chat
+      3. Use /start command
       4. From message in console copy chat id
-6. Set _admins_chat_ to id from 5.IV.
-7. Restart bot
+6. Set _admins_chat_ to id from 5.4.
+7. Restart bot app
