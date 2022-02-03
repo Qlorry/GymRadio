@@ -132,7 +132,12 @@ def handle_next(message):
         tb.send_message(message.chat.id, "End of Song list")
         return
 
-    tb.send_message(message.chat.id, setting_song(song_name))
+    name = ""
+    if player.is_from_radio:
+        name = song_name
+    else:
+        name = song_name.name
+    tb.send_message(message.chat.id, setting_song(name))
 
 
 @tb.message_handler(commands=['p'])
