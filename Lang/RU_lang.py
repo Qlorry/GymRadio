@@ -25,7 +25,7 @@ radio_stations_msg = "Выберете радиостанцию:"
 url_ok = "Обрабатываю ссылку"
 url_bad = "Что-то не так с ссылкой(("
 url_cant_load = "Не могу скачать эту песню"
-url_loaded = "Песня загружена"
+starting_url_load = "Начинаю загрузку"
 
 
 def found_n_songs(n):

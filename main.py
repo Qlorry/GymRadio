@@ -3,19 +3,20 @@ import validators
 import logging
 import telebot
 
-import util
-from downloader import Downloader
+from Player.OrderListPlayer import ChangeSongRes
+from DataDownloader.downloader import Downloader
 from Player.SuperPlayer import SuperPlayer
 from Player.Song import Song
 from keybord_layouts import *
-from convertor import convert
+from DataDownloader.convertor import convert
+from Config.config import conf
 from util import *
 from Lang.lang import *
 
 date_on_start = datetime.datetime.now()
 log_filename = "Logs/"+date_on_start.strftime("%y-%m-%d %H-%M") + ".log"
 logging.basicConfig(filename=log_filename, level=logging.INFO)
-# rm_old_logs()
+rm_old_logs()
 tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
 player = SuperPlayer()
@@ -23,7 +24,7 @@ player.play()
 
 
 def start_download_procedure(message):
-    if util.is_youtube_link(message.text):
+    if is_youtube_link(message.text):
         logging.info("Loading YT link")
         return downloader.load_info(message.text)
     new_links = convert(message.text)
@@ -38,35 +39,56 @@ def start_download_procedure(message):
     return []
 
 
+def add_list(message, res_dict):
+    logging.info("Adding playlist")
+    cnt = 0
+    fails = 0
+    msg_str = "Adding playlist: \n \n"
+
+    list_msg = tb.send_message(message.chat.id, msg_str)
+
+    for item in res_dict.get('entries'):
+        name = item.get('title') if item.get('title') is not None else ""
+        album = item.get('album') if item.get('album') is not None else "NA"
+        if is_song_in_os(album, name):
+            loaded_song = item
+        else:
+            loaded_song = downloader.load(item['webpage_url'])
+        if loaded_song is None:
+            cnt += 1
+            msg_str += "#" + str(cnt) + " " + item.get('title') + " -- Failed\n"
+            fails += 1
+            continue
+        player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
+        cnt += 1
+        msg_str += "#" + str(cnt) + " " + loaded_song.get('title') + "\n"
+        tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
+
+    msg_str += "\nДобавил " + str(cnt - fails) + " песен"
+    tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
+
+
+def add_single(message, res_dict):
+    logging.info("Adding single song " + res_dict.get('title'))
+
+    name = res_dict.get('title') if res_dict.get('title') is not None else ""
+    album = res_dict.get('album') if res_dict.get('album') is not None else "NA"
+    if is_song_in_os(album, name):
+        loaded_song = res_dict
+    else:
+        loaded_song = downloader.load(res_dict['webpage_url'])
+    if loaded_song is None:
+        tb.send_message(message.chat.id, res_dict.get('title') + " -- Failed\n")
+        return
+    player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
+    tb.send_message(message.chat.id, song_name_added(loaded_song.get('title')))
+
+
 def add_procedure(message, res_dict):
     if '_type' in res_dict:
-        logging.info("Adding playlist")
-        cnt = 0
-        fails = 0
-        msg_str = "Adding playlist: \n \n"
-        list_msg = tb.send_message(message.chat.id, msg_str)
-        for item in res_dict.get('entries'):
-            loaded_song = downloader.load(item['webpage_url'])
-            if loaded_song is None:
-                cnt += 1
-                msg_str += "#" + str(cnt) + " " + item.get('title') + " -- Failed\n"
-                fails += 1
-                continue
-            player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
-            cnt += 1
-            msg_str += "#" + str(cnt) + " " + loaded_song.get('title') + "\n"
-            # list_msg = tb.send_message(message.chat.id, msg_str)
-            tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
-        msg_str += "\nДобавил " + str(cnt - fails) + " песен"
-        tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
+        add_list(message, res_dict)
     else:
-        logging.info("Adding single song " + res_dict.get('title'))
-        loaded_song = downloader.load(res_dict['webpage_url'])
-        if loaded_song is None:
-            tb.send_message(message.chat.id, res_dict.get('title') + " -- Failed\n")
-            return
-        player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
-        tb.send_message(message.chat.id, song_name_added(loaded_song.get('title')))
+        add_single(message, res_dict)
 
 
 @tb.message_handler(commands=['start', 'help'])
@@ -98,11 +120,18 @@ def handle_p_p(message):
 def handle_next(message):
     if is_not_admins_chat(message.chat.id, conf):
         return
+    logging.info("next")
     song_name = player.next()
     if song_name is None:
         tb.send_message(message.chat.id, "Something went wrong")
         return
-    logging.info("next")
+    elif song_name is ChangeSongRes.empty_list:
+        tb.send_message(message.chat.id, "List of songs is empty")
+        return
+    elif song_name is ChangeSongRes.end:
+        tb.send_message(message.chat.id, "End of Song list")
+        return
+
     tb.send_message(message.chat.id, setting_song(song_name))
 
 
@@ -280,7 +309,7 @@ def handle_input(message):
             logging.warning("No info for link!")
             tb.send_message(message.chat.id, url_cant_load)
             return
-        tb.send_message(message.chat.id, url_loaded)
+        tb.send_message(message.chat.id, starting_url_load)
         add_procedure(message, res_dict)
     else:
         logging.info("Invalid Link")

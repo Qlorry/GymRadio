@@ -1,7 +1,7 @@
 import yaml
 
 from telebot import types
-from music_library import get_radio_library
+from DataDownloader.music_library import get_radio_library
 
 
 def get_admin_ui():

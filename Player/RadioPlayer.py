@@ -1,7 +1,7 @@
 import threading
 import vlc
 import logging
-from config import conf
+from Config.config import conf
 import os
 
 mutex = threading.Lock()

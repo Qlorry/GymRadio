@@ -1,4 +1,4 @@
-from config import conf
+from Config.config import conf
 import Lang.RU_lang as ru
 
 instruction = ""
@@ -15,7 +15,7 @@ radio_stations_msg = "Radio stations:"
 url_ok = "Processing url"
 url_bad = "Invalid url"
 url_cant_load = "Cant load this link"
-url_loaded = "Link loaded"
+starting_url_load = "Staring url loading"
 
 
 def found_n_songs(n):
@@ -51,4 +51,4 @@ if conf.lang == "RU":
     url_ok = ru.url_ok
     url_bad = ru.url_bad
     url_cant_load = ru.url_cant_load
-    url_loaded = ru.url_loaded
+    starting_url_load = ru.starting_url_load

@@ -1,9 +1,16 @@
 import threading
 import vlc
 import logging
-from config import conf
+from Config.config import conf
 import util
 import os
+from enum import Enum
+
+
+class ChangeSongRes(Enum):
+    begin = 1
+    end = 2
+    empty_list = 3
 
 
 class OrdersListPlayer:
@@ -58,15 +65,17 @@ class OrdersListPlayer:
                 # Basic
                 if self._current == -1 and len(self._orders_media_list) == 0:
                     self._mutex.release()
-                    return None
+                    self._end_callback()
+                    return ChangeSongRes.empty_list
                 if self._current + 1 >= len(self._orders_media_list):
                     try:
                         self._end_callback()
+                        self._current = 0
                         self._mutex.release()
                     except Exception as e:
                         self._mutex.release()
                         return e
-                    return None
+                    return ChangeSongRes.end
                 self.stop()
                 self._current += 1
                 if not self.load_current_song():

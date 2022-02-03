@@ -2,10 +2,10 @@ import logging
 import util
 
 from youtube_dl import YoutubeDL
+
 defaultPlaylistId = "NA"
 
 
-# 'restrictfilenames': True
 class Downloader:
     def __init__(self):
         self.audio_downloader = YoutubeDL({'format': 'm4a',
