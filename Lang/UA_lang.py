@@ -14,7 +14,7 @@ instruction = "    Привіт!\n" \
 
 song_not_found = "Ой, не можу знайти пісню за цим посиланням"
 found_this = "От що я знайшов в ютубі "
-admin_instruction = "Що далі?"
+admin_instruction = "Вибери що потрібно зробити"
 
 stop_msg = "Стоп"
 pause_msg = "Пауза"
