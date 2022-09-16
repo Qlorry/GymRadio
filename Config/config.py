@@ -3,7 +3,7 @@ from os import abort
 
 filename = "config.json"
 
-template = {'token': '', 'admins_chat': "0", 'max_history_size': 100, "lang": "RU", "default_station": "KissFM"}
+template = {'token': '', 'admins_chat': "0", 'max_history_size': 100, "lang": "UA", "default_station": "KissFM"}
 
 
 class Config:
@@ -27,6 +27,8 @@ class Config:
             self.admins_chat = self.data['admins_chat']
             self.max_history_size = self.data['max_history_size']
             self.lang = self.data['lang']
+            if self.lang == "RU":
+                self.lang = "UA"
             self.default_station = self.data['default_station']
         except KeyError as e:
             print("No parameter " + str(e) + " in config")

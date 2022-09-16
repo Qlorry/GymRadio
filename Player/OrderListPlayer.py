@@ -70,7 +70,7 @@ class OrdersListPlayer:
                 if self._current + 1 >= len(self._orders_media_list):
                     try:
                         self._end_callback()
-                        self._current = 0
+                        self.stop()
                         self._mutex.release()
                     except Exception as e:
                         self._mutex.release()
