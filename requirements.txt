@@ -6,3 +6,4 @@ validators
 requests
 pyinstaller
 PyYAML
+yt-dlp

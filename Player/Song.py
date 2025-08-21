@@ -1,5 +1,5 @@
 from DataDownloader.downloader import defaultPlaylistId
-from youtube_dl.utils import sanitize_filename, sanitize_path
+from yt_dlp.utils import sanitize_filename, sanitize_path
 
 
 class Song:

@@ -1,5 +1,5 @@
 import os
-from youtube_dl.utils import sanitize_filename, sanitize_path
+from yt_dlp.utils import sanitize_filename, sanitize_path
 
 
 def compare(str1, str2):

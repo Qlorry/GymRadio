@@ -5,4 +5,6 @@
 /_BuildGymBot
 /Logs
 /music
-
+/.venv
+/.idea
+**/__pycache__/**
