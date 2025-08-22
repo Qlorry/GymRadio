@@ -3,6 +3,7 @@ import enum
 @enum.unique
 class LangKeys(enum.Enum):
     instruction = enum.auto()
+    ok = enum.auto()
     song_not_found = enum.auto()
     found_this = enum.auto()
     admin_instruction= enum.auto()
@@ -26,3 +27,4 @@ class LangKeys(enum.Enum):
     song_load_failed = enum.auto()
     list_of_songs_is_empty = enum.auto()
     end_of_song_list = enum.auto()
+    adding_playlist = enum.auto()

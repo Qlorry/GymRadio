@@ -14,6 +14,7 @@ TRANSLATION = {
                 "    Які посилання підійдуть?\n" \
                 "З будь-якого стрімінгового сервіса(з ймовірністю 99,9% включу з youtube music)\n" \
                 "Кидай сюди посилання на альбом чи плейліст з youtube music, добавлю в чергу все.",
+    LangKeys.ok : "Ок",
     LangKeys.song_not_found : "Ой, не можу знайти пісню за цим посиланням",
     LangKeys.found_this : "От що я знайшов в ютубі {0}",
     LangKeys.admin_instruction : "Вибери що потрібно зробити",
@@ -36,4 +37,5 @@ TRANSLATION = {
     LangKeys.song_load_failed: "Не вдалось завантажити {0}",
     LangKeys.list_of_songs_is_empty: "Список пісень порожній",
     LangKeys.end_of_song_list: "Кінець списку пісень",
+    LangKeys.adding_playlist: "Додаю плейліст: \n\n",
 }

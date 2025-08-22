@@ -36,7 +36,7 @@ class Logic:
         logging.info("Adding playlist")
         cnt = 0
         fails = 0
-        msg_str = "Adding playlist: \n \n"
+        msg_str = Transl(LangKeys.adding_playlist)
 
         list_msg = ctx.respond(msg_str)
 
@@ -107,8 +107,7 @@ class Logic:
             ctx.respond(Transl(LangKeys.end_of_song_list))
             return
 
-        name = song_name
-        ctx.respond(Transl(LangKeys.setting_song, name))
+        ctx.respond(Transl(LangKeys.setting_song, song_name))
 
     def prev(self, ctx: Ctx):
         logging.info("prev")

@@ -10,7 +10,7 @@ class Ctx:
         self._edit_callback = edit_callback
 
     def respond(self, text) -> telebot.types.Message:
-        self._respond_callback(self.chat_id, text)
+        return self._respond_callback(self.chat_id, text)
 
     def edit_respond(self, message: telebot.types.Message, new_text) -> Union[telebot.types.Message, bool]:
-        self._edit_callback(self.chat_id, message.message_id, new_text)
+        return self._edit_callback(self.chat_id, message.message_id, new_text)

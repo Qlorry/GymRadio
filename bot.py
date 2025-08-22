@@ -129,6 +129,7 @@ def handle_swap(message):
     command = message.text.split()
     try:
         player.swap(int(command[1]), int(command[2]))
+        tb.send_message(chat_id=message.chat.id, text=Transl(LangKeys.ok))
     except():
         return
 
@@ -202,3 +203,6 @@ def handle_input(message):
     else:
         logging.info("Invalid Link")
         tb.send_message(message.chat.id, Transl(LangKeys.url_bad))
+
+
+# TODO: Sound controls

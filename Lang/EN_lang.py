@@ -3,6 +3,7 @@ from Lang.lang_keys import LangKeys
 
 TRANSLATION = {
     LangKeys.instruction : "",
+    LangKeys.ok : "Ok",
     LangKeys.song_not_found : "Ooops, cant find song from this link",
     LangKeys.found_this : "Found this in youtube ",
     LangKeys.admin_instruction : "Choose what to do",
@@ -25,4 +26,5 @@ TRANSLATION = {
     LangKeys.song_load_failed: "{0} - load failed",
     LangKeys.list_of_songs_is_empty: "List of songs is empty",
     LangKeys.end_of_song_list: "End of Song list",
+    LangKeys.adding_playlist: "Adding playlist: \n\n",
 }

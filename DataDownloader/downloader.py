@@ -9,10 +9,9 @@ defaultPlaylistId = "NA"
 def my_hook(d):
     if d['status'] == 'finished':
         print('Done downloading, now converting ...')
-
-class Downloader:
-    def __init__(self):
-        ydl_opts = {
+        
+        
+ydl_opts = {
             'format': 'm4a',
             'outtmpl': 'music/%(album)s/%(title)s.m4a',
             'nooverwrites': True,
@@ -22,6 +21,9 @@ class Downloader:
             }],     
             'progress_hooks': [my_hook],
         }
+
+class Downloader:
+    def __init__(self):
         self.audio_downloader = YoutubeDL(ydl_opts)
 
     def load_info(self, url):
@@ -29,6 +31,9 @@ class Downloader:
             return self.audio_downloader.extract_info(url, download=False)
         except Exception as e:
             logging.warning("Error loading song info" + str(e))
+            if "Requested format is not available." in str(e):
+                logging.warning("Trying to recreate downloader")
+                self.audio_downloader = YoutubeDL(ydl_opts)
             return []
 
     def load(self, url):

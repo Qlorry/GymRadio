@@ -4,6 +4,7 @@ import vlc
 from Player.OrderListPlayer import OrdersListPlayer
 from Player.RadioPlayer import RadioPlayer
 from Config.config import conf
+from Player.Song import Song
 
 
 vlc_instance = vlc.Instance()
@@ -51,8 +52,15 @@ class SuperPlayer:
         self.player.stop()
 
     def next(self):
-        return self.player.next()
-
+        if self.is_from_radio:
+            return self.player.next()
+        res = self.player.next()
+        if res is None:
+            return None
+        if type(res) is Song:
+            return res.name
+        return res
+    
     def prev(self):
         if self.is_from_radio:
             return self.player.previous()
