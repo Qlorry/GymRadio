@@ -7,16 +7,17 @@ from DataDownloader.music_library import get_radio_library
 def get_admin_ui():
     markup = types.ReplyKeyboardMarkup()
 
-    btn_library = types.KeyboardButton('/radio')
-    btn_orders = types.KeyboardButton('/orders')
-    btn_play = types.KeyboardButton('/p_p ⏯')
-    btn_next = types.KeyboardButton('/n ⏭')
-    btn_prev = types.KeyboardButton('/p ⏮')
+    btn_library = types.KeyboardButton('/radio 📻')
+    btn_orders = types.KeyboardButton('/orders 📋')
+    btn_live_streams = types.KeyboardButton('/live_streams 🎥')
+    btn_play = types.KeyboardButton('⏯')
+    btn_next = types.KeyboardButton('⏭')
+    btn_prev = types.KeyboardButton('⏮')
     btn_sound_up = types.KeyboardButton('/upnext')
-    btn_stop = types.KeyboardButton('/s ⏹')
+    btn_stop = types.KeyboardButton('⏹')
     btn_sound_down = types.KeyboardButton('/history')
 
-    markup.row(btn_library, btn_orders)
+    markup.row(btn_library, btn_orders, btn_live_streams)
     markup.row(btn_prev, btn_play, btn_next)
     markup.row(btn_sound_down, btn_stop, btn_sound_up)
     return markup

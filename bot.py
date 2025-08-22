@@ -5,6 +5,8 @@ import validators
 import logging
 import telebot
 
+from telebot.custom_filters import TextMatchFilter
+
 from Player.OrderListPlayer import ChangeSongRes
 from DataDownloader.downloader import Downloader
 from Player.SuperPlayer import SuperPlayer
@@ -19,6 +21,39 @@ tb = telebot.TeleBot(conf.token)
 downloader = Downloader()
 player = None
 
+
+class OnlyAdmins(telebot.AdvancedCustomFilter):
+    key = 'only_admin_chat'
+
+    def check(self, message, text):
+        if not text:
+            return True
+        return str(message.chat.id) == conf.admins_chat
+
+class TextMatch(telebot.AdvancedCustomFilter):
+    """
+    Filter to check Text message.
+
+    .. code-block:: python3
+        :caption: Example on using this filter:
+
+        @bot.message_handler(text=['account'])
+        # your function
+    """
+
+    key = 'text'
+
+    def check(self, message, text):
+        """
+        :meta private:
+        """
+        if isinstance(text, list):
+            return message.text in text
+        else:
+            return text == message.text
+        
+tb.add_custom_filter(OnlyAdmins())
+tb.add_custom_filter(TextMatch())
 
 def start():
     tb.polling(none_stop=True, interval=0)
@@ -99,21 +134,22 @@ def add_procedure(message, res_dict):
         add_single(message, res_dict)
 
 
-@tb.message_handler(commands=['start', 'help'])
+@tb.message_handler(commands=['start', 'help'], only_admin_chat=True)
 def handle_start_help(message):
-    print("Start from ", message.chat.id)
-    logging.info("start/help")
-    if is_not_admins_chat(message.chat.id, conf):
-        tb.send_message(message.chat.id, instruction)
-        return
+    print("Start from admins ", message.chat.id)
+    logging.info("admin start/help")
     markup = get_admin_ui()
     tb.send_message(message.chat.id, admin_instruction, reply_markup=markup)
 
 
-@tb.message_handler(commands=['p_p'])
+@tb.message_handler(commands=['start', 'help'], only_admin_chat=False)
+def handle_start_help(message):
+    print("Start from user ", message.chat.id)
+    logging.info("user start/help")
+    tb.send_message(message.chat.id, instruction)
+
+@tb.message_handler(text=['⏯', '⏯️'], only_admin_chat=True)
 def handle_p_p(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     if player.is_now_playing():
         logging.info("pause")
         tb.send_message(message.chat.id, pause_msg)
@@ -124,10 +160,8 @@ def handle_p_p(message):
         player.play()
 
 
-@tb.message_handler(commands=['n'])
+@tb.message_handler(text=['⏭'], only_admin_chat=True)
 def handle_next(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     logging.info("next")
     song_name = player.next()
     if song_name is None:
@@ -148,10 +182,8 @@ def handle_next(message):
     tb.send_message(message.chat.id, setting_song(name))
 
 
-@tb.message_handler(commands=['p'])
+@tb.message_handler(text=['⏮'], only_admin_chat=True)
 def handle_prev(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     res = player.prev()
     if res is None:
         tb.send_message(message.chat.id, "Something went wrong")
@@ -160,27 +192,21 @@ def handle_prev(message):
     tb.send_message(message.chat.id, setting_song(res))
 
 
-@tb.message_handler(commands=['s'])
+@tb.message_handler(text=['⏹'], only_admin_chat=True)
 def handle_stop(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     player.stop()
     logging.info("stop")
     tb.send_message(message.chat.id, stop_msg)
 
 
-@tb.message_handler(commands=['radio'])
+@tb.message_handler(commands=['radio'], only_admin_chat=True)
 def handle_radio(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     logging.info("radio")
     tb.send_message(message.chat.id, radio_stations_msg, reply_markup=get_radio_list_keyboard())
 
 
-@tb.message_handler(commands=['orders'])
+@tb.message_handler(commands=['orders'], only_admin_chat=True)
 def handle_orders(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     if not player.is_from_radio:
         tb.send_message(message.chat.id, already_selected_msg)
         return
@@ -189,10 +215,8 @@ def handle_orders(message):
     tb.send_message(message.chat.id, orders_msg)
 
 
-@tb.message_handler(commands=['upnext'])
+@tb.message_handler(commands=['upnext'], only_admin_chat=True)
 def handle_orders(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     logging.info("upnext")
     songs = player.get_next_songs(5)
     if len(songs["list"]) == 0:
@@ -203,10 +227,8 @@ def handle_orders(message):
                                                                                             songs["lastIndex"]))
 
 
-@tb.message_handler(commands=['history'])
+@tb.message_handler(commands=['history'], only_admin_chat=True)
 def handle_orders(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     logging.info("history")
     songs = player.get_prev_songs(5)
     if len(songs["list"]) == 0:
@@ -244,10 +266,8 @@ def handle_orders(message):
     tb.send_message(chat_id=message.chat.id, text=player.whats_playing())
 
 
-@tb.message_handler(commands=['swap'])
+@tb.message_handler(commands=['swap'], only_admin_chat=True)
 def handle_orders(message):
-    if is_not_admins_chat(message.chat.id, conf):
-        return
     logging.info("swap")
     command = message.text.split()
     try:
