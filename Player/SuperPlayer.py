@@ -1,6 +1,7 @@
 import time
 import vlc
 
+from Player import StreamPlayer
 from Player.OrderListPlayer import OrdersListPlayer
 from Player.RadioPlayer import RadioPlayer
 from Config.config import conf
@@ -17,6 +18,10 @@ class SuperPlayer:
         # ORDERS
         self.orders_player = OrdersListPlayer()
         self.orders_player.set_callback(self.switch_to_radio)
+        # STREAMS
+        # self.orders_player = StreamPlayer()
+        self.orders_player.set_callback(self.switch_to_radio)
+
         # BOOLS
         self.is_from_radio = True
         self.player = self.radio_player
