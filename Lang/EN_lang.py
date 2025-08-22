@@ -19,17 +19,10 @@ TRANSLATION = {
     LangKeys.found_n_songs: "Added {0} songs to queue",
     LangKeys.song_name_added: "Song \"{0}\" added to queue",
     LangKeys.setting_song: "Setting \"{0}\"",
+    LangKeys.something_went_wrong: "Something went wrong",
+    LangKeys.list_is_empty: "List is empty",
+    LangKeys.request_list: "Orders list:",
+    LangKeys.song_load_failed: "{0} - load failed",
+    LangKeys.list_of_songs_is_empty: "List of songs is empty",
+    LangKeys.end_of_song_list: "End of Song list",
 }
-
-
-
-def found_n_songs(n):
-    return "Added " + str(n) + " songs in queue"
-
-
-def song_name_added(name):
-    return "Song \"" + name + "\" added in queue"
-
-
-def setting_song(name):
-    return "Setting \"" + name + "\""

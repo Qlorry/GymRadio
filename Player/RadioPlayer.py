@@ -36,7 +36,7 @@ class RadioPlayer:
             self.station_index += 1
         self.radio_player.next()
         self.radio_player.next()
-        return self.sub_stations[self.station_index]
+        return self.sub_stations[self.station_index].name
 
     def previous(self):
         if self.station_index - 1 < 0:

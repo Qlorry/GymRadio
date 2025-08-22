@@ -54,47 +54,18 @@ def handle_start_help(message):
     tb.send_message(message.chat.id, Transl(LangKeys.instruction))
 
 @tb.message_handler(text=['⏯', '⏯️'], only_admin_chat=True)
-def handle_p_p(message):
-    if player.is_now_playing():
-        logging.info("pause")
-        tb.send_message(message.chat.id, Transl(LangKeys.pause_msg))
-        player.pause()
-    else:
-        logging.info("play")
-        tb.send_message(message.chat.id, Transl(LangKeys.play_msg))
-        player.play()
+def handle_play_pause(message):
+    logic.play_or_pause(ctx_factory.new(message))
 
 
 @tb.message_handler(text=['⏭'], only_admin_chat=True)
 def handle_next(message):
-    logging.info("next")
-    song_name = player.next()
-    if song_name is None:
-        tb.send_message(message.chat.id, "Something went wrong")
-        return
-    elif song_name is ChangeSongRes.empty_list:
-        tb.send_message(message.chat.id, "List of songs is empty")
-        return
-    elif song_name is ChangeSongRes.end:
-        tb.send_message(message.chat.id, "End of Song list")
-        return
-
-    name = ""
-    if player.is_from_radio:
-        name = song_name
-    else:
-        name = song_name.name
-    tb.send_message(message.chat.id, Transl(LangKeys.setting_song, name))
+    logic.next(ctx_factory.new(message))
 
 
 @tb.message_handler(text=['⏮'], only_admin_chat=True)
 def handle_prev(message):
-    res = player.prev()
-    if res is None:
-        tb.send_message(message.chat.id, "Something went wrong")
-        return
-    logging.info("prev")
-    tb.send_message(message.chat.id, Transl(LangKeys.setting_song, res))
+    logic.prev(ctx_factory.new(message))
 
 
 @tb.message_handler(text=['⏹'], only_admin_chat=True)
@@ -112,18 +83,13 @@ def handle_radio(message):
 
 @tb.message_handler(commands=['orders'], only_admin_chat=True)
 def handle_orders(message):
-    if not player.is_from_radio:
-        tb.send_message(message.chat.id, Transl(LangKeys.already_selected_msg))
-        return
-    logging.info("orders")
-    player.switch_to_orders()
-    tb.send_message(message.chat.id, Transl(LangKeys.orders_msg))
+    logic.play_orders(ctx_factory.new(message))
 
 
 @tb.message_handler(commands=['upnext'], only_admin_chat=True)
-def handle_orders(message):
+def handle_upnext(message):
     logging.info("upnext")
-    songs = player.get_next_songs(5)
+    songs = logic.get_upnext_list()
     if len(songs["list"]) == 0:
         logging.warning("No More songs for upnext")
         tb.send_message(message.chat.id, "No more songs in queue")
@@ -133,9 +99,9 @@ def handle_orders(message):
 
 
 @tb.message_handler(commands=['history'], only_admin_chat=True)
-def handle_orders(message):
+def handle_history(message):
     logging.info("history")
-    songs = player.get_prev_songs(5)
+    songs = logic.get_history_list()
     if len(songs["list"]) == 0:
         logging.warning("No More songs for history")
         tb.send_message(message.chat.id, "No more songs in history")
@@ -146,34 +112,19 @@ def handle_orders(message):
 
 
 @tb.message_handler(commands=['list'], only_admin_chat=False)
-def handle_orders(message):
-    logging.info("list")
-    songs = player.get_all_songs()
-    if len(songs) == 0:
-        logging.warning("No songs in media player")
-        tb.send_message(message.chat.id, "List is empty")
-        return
-    current = player.get_current_index()
-    msg = ""
-    cnt = 1
-    for s in songs:
-        if cnt - 1 == current:
-            msg += "-> " + str(cnt) + " " + s.name + "\n"
-        else:
-            msg += "# " + str(cnt) + " " + s.name + "\n"
-        cnt += 1
-    tb.send_message(message.chat.id, msg)
+def handle_list(message):
+    logic.handle_list(ctx_factory.new(message))
 
 
 @tb.message_handler(commands=['now'], only_admin_chat=False)
 @tb.message_handler(text=['Whats playing now?'], only_admin_chat=False)
-def handle_orders(message):
+def handle_now(message):
     logging.info("Want's now")
     tb.send_message(chat_id=message.chat.id, text=player.whats_playing())
 
 
 @tb.message_handler(commands=['swap'], only_admin_chat=True)
-def handle_orders(message):
+def handle_swap(message):
     logging.info("swap")
     command = message.text.split()
     try:

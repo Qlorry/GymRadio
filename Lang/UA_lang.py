@@ -30,4 +30,10 @@ TRANSLATION = {
     LangKeys.found_n_songs: "Добавив {0} пісень в чергу",
     LangKeys.song_name_added: "Пісня \"{0}\" додана до черги",
     LangKeys.setting_song: "Вмикаю \"{0}\"",
+    LangKeys.something_went_wrong: "Щось пішло не так",
+    LangKeys.list_is_empty: "Список порожній",
+    LangKeys.request_list: "Список замовлень:",
+    LangKeys.song_load_failed: "Не вдалось завантажити {0}",
+    LangKeys.list_of_songs_is_empty: "Список пісень порожній",
+    LangKeys.end_of_song_list: "Кінець списку пісень",
 }

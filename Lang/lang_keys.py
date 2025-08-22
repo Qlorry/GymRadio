@@ -19,3 +19,10 @@ class LangKeys(enum.Enum):
     found_n_songs = enum.auto()
     song_name_added = enum.auto()
     setting_song = enum.auto()
+    something_went_wrong = enum.auto()
+    list_is_empty = enum.auto()
+    request_list = enum.auto()
+
+    song_load_failed = enum.auto()
+    list_of_songs_is_empty = enum.auto()
+    end_of_song_list = enum.auto()
