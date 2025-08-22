@@ -1,8 +1,9 @@
 import datetime
 import logging
 
+from Logic.logic import Logic
 from Player.SuperPlayer import SuperPlayer
-from util import *
+from Util.util import *
 from bot import start_bot
 
 date_on_start = datetime.datetime.now()
@@ -12,4 +13,7 @@ rm_old_logs()
 
 player = SuperPlayer()
 player.play()
-start_bot(player)
+
+logic = Logic(player)
+
+start_bot(player, logic)

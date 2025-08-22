@@ -2,7 +2,7 @@ import threading
 import vlc
 import logging
 from Config.config import conf
-import util
+import Util.util as util
 import os
 from enum import Enum
 

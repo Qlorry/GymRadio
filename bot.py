@@ -5,133 +5,38 @@ import validators
 import logging
 import telebot
 
-from telebot.custom_filters import TextMatchFilter
-
+from Lang.lang import Transl
+from Lang.lang_keys import LangKeys
+from Logic.logic import Logic
 from Player.OrderListPlayer import ChangeSongRes
-from DataDownloader.downloader import Downloader
-from Player.SuperPlayer import SuperPlayer
-from Player.Song import Song
 from Config.keybord_layouts import *
-from DataDownloader.convertor import convert
 from Config.config import conf
-from util import *
-from Lang.lang import *
+import Util.bot_filters as bot_filters
+from Util.ctx_factory import CtxFactory
 
+# Bot setup
 tb = telebot.TeleBot(conf.token)
-downloader = Downloader()
-player = None
+tb.add_custom_filter(bot_filters.OnlyAdmins())
+tb.add_custom_filter(bot_filters.TextMatch())
 
-
-class OnlyAdmins(telebot.AdvancedCustomFilter):
-    key = 'only_admin_chat'
-
-    def check(self, message, text):
-        if not text:
-            return True
-        return str(message.chat.id) == conf.admins_chat
-
-class TextMatch(telebot.AdvancedCustomFilter):
-    """
-    Filter to check Text message.
-
-    .. code-block:: python3
-        :caption: Example on using this filter:
-
-        @bot.message_handler(text=['account'])
-        # your function
-    """
-
-    key = 'text'
-
-    def check(self, message, text):
-        """
-        :meta private:
-        """
-        if isinstance(text, list):
-            return message.text in text
-        else:
-            return text == message.text
-        
-tb.add_custom_filter(OnlyAdmins())
-tb.add_custom_filter(TextMatch())
-
-def start():
+def run_polling():
     tb.polling(none_stop=True, interval=0)
 
+ctx_factory = CtxFactory(lambda chat_id, text: tb.send_message(chat_id, text), 
+                         lambda chat_id, message_id, new_text: tb.edit_message_text(chat_id=chat_id, message_id=message_id, text=new_text)
+)
 
-def start_bot(player_ref):
+# Globals
+player = None
+logic: Logic = None
+
+def start_bot(player_ref, logic_ref):
     global player
+    global logic
     player = player_ref
-    th = threading.Thread(target=start)
+    logic = logic_ref
+    th = threading.Thread(target=run_polling)
     th.start()
-
-
-def start_download_procedure(message):
-    if is_youtube_link(message.text):
-        logging.info("Loading YT link")
-        return downloader.load_info(message.text)
-    new_links = convert(message.text)
-    if len(new_links) == 0:
-        tb.send_message(message.chat.id, song_not_found)
-        return []
-    for link in new_links:
-        result = downloader.load_info(link)
-        if len(result) != 0:
-            tb.send_message(message.chat.id, found_this + link)
-            return result
-    return []
-
-
-def add_list(message, res_dict):
-    logging.info("Adding playlist")
-    cnt = 0
-    fails = 0
-    msg_str = "Adding playlist: \n \n"
-
-    list_msg = tb.send_message(message.chat.id, msg_str)
-
-    for item in res_dict.get('entries'):
-        name = item.get('title') if item.get('title') is not None else ""
-        album = item.get('album') if item.get('album') is not None else "NA"
-        if is_song_in_os(album, name):
-            loaded_song = item
-        else:
-            loaded_song = downloader.load(item['webpage_url'])
-        if loaded_song is None:
-            cnt += 1
-            msg_str += "#" + str(cnt) + " " + item.get('title') + " -- Failed\n"
-            fails += 1
-            continue
-        player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
-        cnt += 1
-        msg_str += "#" + str(cnt) + " " + loaded_song.get('title') + "\n"
-        tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
-
-    msg_str += found_n_songs(cnt - fails)
-    tb.edit_message_text(chat_id=message.chat.id, message_id=list_msg.message_id, text=msg_str)
-
-
-def add_single(message, res_dict):
-    logging.info("Adding single song " + res_dict.get('title'))
-
-    name = res_dict.get('title') if res_dict.get('title') is not None else ""
-    album = res_dict.get('album') if res_dict.get('album') is not None else "NA"
-    if is_song_in_os(album, name):
-        loaded_song = res_dict
-    else:
-        loaded_song = downloader.load(res_dict['webpage_url'])
-    if loaded_song is None:
-        tb.send_message(message.chat.id, res_dict.get('title') + " -- Failed\n")
-        return
-    player.add_song(Song(loaded_song.get('title'), loaded_song.get('album')))
-    tb.send_message(message.chat.id, song_name_added(loaded_song.get('title')))
-
-
-def add_procedure(message, res_dict):
-    if '_type' in res_dict:
-        add_list(message, res_dict)
-    else:
-        add_single(message, res_dict)
 
 
 @tb.message_handler(commands=['start', 'help'], only_admin_chat=True)
@@ -139,24 +44,24 @@ def handle_start_help(message):
     print("Start from admins ", message.chat.id)
     logging.info("admin start/help")
     markup = get_admin_ui()
-    tb.send_message(message.chat.id, admin_instruction, reply_markup=markup)
+    tb.send_message(message.chat.id, Transl(LangKeys.admin_instruction), reply_markup=markup)
 
 
 @tb.message_handler(commands=['start', 'help'], only_admin_chat=False)
 def handle_start_help(message):
     print("Start from user ", message.chat.id)
     logging.info("user start/help")
-    tb.send_message(message.chat.id, instruction)
+    tb.send_message(message.chat.id, Transl(LangKeys.instruction))
 
 @tb.message_handler(text=['⏯', '⏯️'], only_admin_chat=True)
 def handle_p_p(message):
     if player.is_now_playing():
         logging.info("pause")
-        tb.send_message(message.chat.id, pause_msg)
+        tb.send_message(message.chat.id, Transl(LangKeys.pause_msg))
         player.pause()
     else:
         logging.info("play")
-        tb.send_message(message.chat.id, play_msg)
+        tb.send_message(message.chat.id, Transl(LangKeys.play_msg))
         player.play()
 
 
@@ -179,7 +84,7 @@ def handle_next(message):
         name = song_name
     else:
         name = song_name.name
-    tb.send_message(message.chat.id, setting_song(name))
+    tb.send_message(message.chat.id, Transl(LangKeys.setting_song, name))
 
 
 @tb.message_handler(text=['⏮'], only_admin_chat=True)
@@ -189,30 +94,30 @@ def handle_prev(message):
         tb.send_message(message.chat.id, "Something went wrong")
         return
     logging.info("prev")
-    tb.send_message(message.chat.id, setting_song(res))
+    tb.send_message(message.chat.id, Transl(LangKeys.setting_song, res))
 
 
 @tb.message_handler(text=['⏹'], only_admin_chat=True)
 def handle_stop(message):
     player.stop()
     logging.info("stop")
-    tb.send_message(message.chat.id, stop_msg)
+    tb.send_message(message.chat.id, Transl(LangKeys.stop_msg))
 
 
 @tb.message_handler(commands=['radio'], only_admin_chat=True)
 def handle_radio(message):
     logging.info("radio")
-    tb.send_message(message.chat.id, radio_stations_msg, reply_markup=get_radio_list_keyboard())
+    tb.send_message(message.chat.id, Transl(LangKeys.radio_stations_msg), reply_markup=get_radio_list_keyboard())
 
 
 @tb.message_handler(commands=['orders'], only_admin_chat=True)
 def handle_orders(message):
     if not player.is_from_radio:
-        tb.send_message(message.chat.id, already_selected_msg)
+        tb.send_message(message.chat.id, Transl(LangKeys.already_selected_msg))
         return
     logging.info("orders")
     player.switch_to_orders()
-    tb.send_message(message.chat.id, orders_msg)
+    tb.send_message(message.chat.id, Transl(LangKeys.orders_msg))
 
 
 @tb.message_handler(commands=['upnext'], only_admin_chat=True)
@@ -240,7 +145,7 @@ def handle_orders(message):
                     reply_markup=get_history_list_keyboard(songs["list"], songs["firstIndex"]))
 
 
-@tb.message_handler(commands=['list'])
+@tb.message_handler(commands=['list'], only_admin_chat=False)
 def handle_orders(message):
     logging.info("list")
     songs = player.get_all_songs()
@@ -260,7 +165,8 @@ def handle_orders(message):
     tb.send_message(message.chat.id, msg)
 
 
-@tb.message_handler(commands=['now'])
+@tb.message_handler(commands=['now'], only_admin_chat=False)
+@tb.message_handler(text=['Whats playing now?'], only_admin_chat=False)
 def handle_orders(message):
     logging.info("Want's now")
     tb.send_message(chat_id=message.chat.id, text=player.whats_playing())
@@ -330,20 +236,18 @@ def callback_inline(call):
 
 @tb.message_handler(content_types=['text'])
 def handle_input(message):
-    if message.text == "Whats playing now?":
-        tb.send_message(message.chat.id, player.whats_playing())
-        return
     valid = validators.url(message.text)
+    ctx = ctx_factory.new(message)
     if valid:
-        tb.send_message(message.chat.id, url_ok)
+        tb.send_message(message.chat.id, Transl(LangKeys.url_ok))
         print("Url is valid")
-        res_dict = start_download_procedure(message)
+        res_dict = logic.fetch_info(message.text, ctx)
         if len(res_dict) == 0:
             logging.warning("No info for link!")
-            tb.send_message(message.chat.id, url_cant_load)
+            tb.send_message(message.chat.id, Transl(LangKeys.url_cant_load))
             return
-        tb.send_message(message.chat.id, starting_url_load)
-        add_procedure(message, res_dict)
+        tb.send_message(message.chat.id, Transl(LangKeys.starting_url_load))
+        logic.start_download(res_dict, ctx)
     else:
         logging.info("Invalid Link")
-        tb.send_message(message.chat.id, url_bad)
+        tb.send_message(message.chat.id, Transl(LangKeys.url_bad))

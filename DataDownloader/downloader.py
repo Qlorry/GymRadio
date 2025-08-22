@@ -1,6 +1,6 @@
 import logging
 import os
-import util
+import Util.util as util
 
 from yt_dlp import YoutubeDL
 

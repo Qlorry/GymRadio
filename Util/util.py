@@ -23,13 +23,6 @@ def is_youtube_link(url):
         return True
     return False
 
-
-def is_not_admins_chat(chat_id, conf):
-    if str(chat_id) == conf.admins_chat:
-        return False
-    return True
-
-
 def rm_old_logs():
     cnt = 0
     oldest = None
