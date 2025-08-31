@@ -23,28 +23,24 @@ ydl_opts = {
         }
 
 class Downloader:
-    def __init__(self):
-        self.audio_downloader = YoutubeDL(ydl_opts)
-
     def load_info(self, url):
         try:
-            return self.audio_downloader.extract_info(url, download=False)
+            with YoutubeDL(ydl_opts) as ydl:
+                return ydl.extract_info(url, download=False)
         except Exception as e:
             logging.warning("Error loading song info" + str(e))
-            if "Requested format is not available." in str(e):
-                logging.warning("Trying to recreate downloader")
-                self.audio_downloader = YoutubeDL(ydl_opts)
             return []
 
     def load(self, url):
         try:
-            res = self.audio_downloader.extract_info(url)
+            with YoutubeDL(ydl_opts) as ydl:
+                res = ydl.extract_info(url)
 
-            name = res.get('title') if res.get('title') is not None else ""
-            album = res.get('album') if res.get('album') is not None else "NA"
-            if util.is_song_in_os(album, name):
-                return res
-            return None
+                name = res.get('title') if res.get('title') is not None else ""
+                album = res.get('album') if res.get('album') is not None else "NA"
+                if util.is_song_in_os(album, name):
+                    return res
+                return None
         except Exception as e:
             logging.warning("Error downloading song" + str(e))
             return None
