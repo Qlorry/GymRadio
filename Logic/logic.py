@@ -131,7 +131,7 @@ class Logic:
             return
         logging.info("streams")
         self._player.switch_to_streams()
-        ctx.respond(Transl(LangKeys.streams_msg))
+        ctx.respond(Transl(LangKeys.streams_msg, self._player.whats_playing()))
 
 
     def get_upnext_list(self):

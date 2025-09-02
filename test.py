@@ -9,16 +9,17 @@ ydl_opts = {
     'format': 'bestaudio/best',  # pick best available
     'quiet': True,
 }
-with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-    info = ydl.extract_info(url, download=False)
-    stream_url = info['url']
+# with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+#     info = ydl.extract_info(url, download=False)
+#     stream_url = info['url']
+stream_url = 'https://www.youtube.com/watch?v=booKP974B0k'
 
 print("Resolved stream:", stream_url)
 
 # Step 2: Play with VLC
 instance = vlc.Instance()
 player = instance.media_player_new()
-media = instance.media_new(stream_url)
+media = vlc.Media(stream_url)
 player.set_media(media)
 player.play()
 
