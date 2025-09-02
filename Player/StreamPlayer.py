@@ -1,15 +1,49 @@
 import threading
 import vlc
 import logging
+
+import yt_dlp
 from Config.config import conf
 import os
 
 mutex = threading.Lock()
 
+ydl_opts = {
+    'format': 'bestaudio/best',  # pick best available
+    'quiet': True,
+}
 
 class StreamPlayer:
-    def __init__(self, station_name):
+    def __init__(self):
         self.stream_player = vlc.MediaListPlayer()
+
+        self.stream_names = []
+        self.stream_links = []
+        self.current_stream_index = 0
+
+        self.media_list = vlc.MediaList()
+
+        index = 0
+        for stream_name in conf.streams.keys():
+            self.stream_links.append(conf.streams[stream_name])
+            self.stream_names.append(stream_name)
+        
+            media = vlc.Media(self._get_real_stream_link(index))
+            self.media_list.add_media(media)
+            self.media_list.set_media(media)
+
+            if stream_name == conf.default_stream:
+                self.current_stream_index = index
+            index += 1
+
+        self.stream_player.set_media_list(self.media_list)
+        self.stream_player.play_item_at_index(self.current_stream_index)
+        self.pause()
+
+    def _get_real_stream_link(self, index):
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(self.stream_links[index], download=False)
+            return info['url']
 
     def play(self):
         return self.stream_player.play()

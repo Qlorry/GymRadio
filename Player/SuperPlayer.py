@@ -1,7 +1,8 @@
+from enum import Enum
 import time
 import vlc
 
-from Player import StreamPlayer
+from Player.StreamPlayer import StreamPlayer
 from Player.OrderListPlayer import OrdersListPlayer
 from Player.RadioPlayer import RadioPlayer
 from Config.config import conf
@@ -9,6 +10,11 @@ from Player.Song import Song
 
 
 vlc_instance = vlc.Instance()
+
+class Source(Enum):
+    RADIO = 1
+    STREAM = 2
+    ORDERS = 3
 
 
 class SuperPlayer:
@@ -19,17 +25,19 @@ class SuperPlayer:
         self.orders_player = OrdersListPlayer()
         self.orders_player.set_callback(self.switch_to_radio)
         # STREAMS
-        # self.orders_player = StreamPlayer()
-        self.orders_player.set_callback(self.switch_to_radio)
+        self.streams_player = StreamPlayer()
+        self.streams_player.set_callback(self.switch_to_radio)
 
-        # BOOLS
-        self.is_from_radio = True
+        self.source = Source.RADIO
         self.player = self.radio_player
+
+    def is_playing(self, src: Source):
+        return self.source == src
 
     def check_thread(self):
         while True:
             time.sleep(0.5)
-            if self.is_from_radio:
+            if self.source == Source.RADIO:
                 time.sleep(1)
             state = self.player.get_state()
             if state == vlc.State(6):  # Ended
@@ -40,12 +48,16 @@ class SuperPlayer:
         return self.player.is_playing()
 
     def whats_playing(self):
-        if self.is_from_radio:
-            return self.player.get_current()
-        res = self.player.get_current()
-        if res is None:
-            return "None"
-        return res.name
+        match self.source:
+            case Source.RADIO:
+                return self.player.get_current()
+            case Source.STREAM:
+                return self.player.get_current()
+            case Source.ORDERS:
+                res = self.player.get_current()
+                if res is None:
+                    return "None"
+                return res.name
 
     def play(self):
         self.player.play()
@@ -57,40 +69,54 @@ class SuperPlayer:
         self.player.stop()
 
     def next(self):
-        if self.is_from_radio:
-            return self.player.next()
-        res = self.player.next()
-        if res is None:
-            return None
-        if type(res) is Song:
-            return res.name
-        return res
+        match self.source:
+            case Source.RADIO:
+                return self.player.next()
+            case Source.STREAM:
+                return self.player.next()
+            case Source.ORDERS:
+                res = self.player.next()
+                if res is None:
+                    return None
+                if type(res) is Song:
+                    return res.name
+                return res
     
     def prev(self):
-        if self.is_from_radio:
-            return self.player.previous()
-        res = self.player.previous()
-        if res is not None:
-            return res.name
-        return None
+        match self.source:
+            case Source.RADIO:            
+                return self.player.previous()
+            case Source.STREAM:
+                return self.player.previous()
+            case Source.ORDERS:
+                res = self.player.previous()
+                if res is not None:
+                    return res.name
+                return None
 
     def add_song(self, song):
         self.orders_player.add_song(song)
-        if self.is_from_radio:
-            self.switch_to_orders()
-            self.next()
-            self.play()
+        if self.source == Source.RADIO or self.source == Source.STREAM:
+                self.switch_to_orders()
+                self.next()
+                self.play()
 
     def switch_to_orders(self):
-        self.is_from_radio = False
+        self.source = Source.ORDERS
         self.stop()
         self.player = self.orders_player
         self.play()
 
     def switch_to_radio(self):
-        self.is_from_radio = True
+        self.source = Source.RADIO
         self.pause()
         self.player = self.radio_player
+        self.play()
+
+    def switch_to_streams(self):
+        self.source = Source.STREAM
+        self.stop()
+        self.player = self.streams_player
         self.play()
 
     def load_station(self, station_name):
@@ -117,18 +143,18 @@ class SuperPlayer:
 
     def go_to(self, index):
         self.orders_player.go_to(index)
-        if self.is_from_radio:
+        if self.source == Source.RADIO or self.source == Source.STREAM:
             self.switch_to_orders()
 
     def get_all_songs(self):
         return self.orders_player.get_all_songs()
 
     def get_current_index(self):
-        if self.is_from_radio:
+        if self.source == Source.RADIO or self.source == Source.STREAM:
             return None
         return self.orders_player.current()
 
     def swap(self, first, second):
-        if self.is_from_radio:
+        if self.source == Source.RADIO or self.source == Source.STREAM:
             return None
         return self.orders_player.swap(first, second)

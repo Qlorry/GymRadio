@@ -28,6 +28,7 @@ TRANSLATION = {
     LangKeys.starting_url_load : "Починаю завантаження",
     LangKeys.already_selected_msg : "Вже вибрано",
     LangKeys.orders_msg : "Замовлення",
+    LangKeys.streams_msg : "Стріми",
     LangKeys.found_n_songs: "Добавив {0} пісень в чергу",
     LangKeys.song_name_added: "Пісня \"{0}\" додана до черги",
     LangKeys.setting_song: "Вмикаю \"{0}\"",

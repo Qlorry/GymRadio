@@ -4,7 +4,7 @@ from DataDownloader.downloader import Downloader
 from DataDownloader.convertor import convert
 from Player.OrderListPlayer import ChangeSongRes
 from Player.Song import Song
-from Player.SuperPlayer import SuperPlayer
+from Player.SuperPlayer import Source, SuperPlayer
 from Util.ctx import Ctx
 import Util.util as util
 from Lang.lang import Transl
@@ -118,12 +118,20 @@ class Logic:
         ctx.respond(Transl(LangKeys.setting_song, res))
 
     def play_orders(self, ctx: Ctx):
-        if not self._player.is_from_radio:
+        if self._player.is_playing(Source.ORDERS):
             ctx.respond(Transl(LangKeys.already_selected_msg))
             return
         logging.info("orders")
         self._player.switch_to_orders()
         ctx.respond(Transl(LangKeys.orders_msg))
+
+    def play_streams(self, ctx: Ctx):
+        if self._player.is_playing(Source.STREAM):
+            ctx.respond(Transl(LangKeys.already_selected_msg))
+            return
+        logging.info("streams")
+        self._player.switch_to_streams()
+        ctx.respond(Transl(LangKeys.streams_msg))
 
 
     def get_upnext_list(self):

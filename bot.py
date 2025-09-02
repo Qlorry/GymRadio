@@ -85,6 +85,10 @@ def handle_radio(message):
 def handle_orders(message):
     logic.play_orders(ctx_factory.new(message))
 
+@tb.message_handler(commands=['live_streams'], only_admin_chat=True)
+def handle_orders(message):
+    logic.play_streams(ctx_factory.new(message))
+
 
 @tb.message_handler(commands=['upnext'], only_admin_chat=True)
 def handle_upnext(message):

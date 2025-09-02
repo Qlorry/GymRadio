@@ -17,6 +17,7 @@ class LangKeys(enum.Enum):
     starting_url_load = enum.auto()
     already_selected_msg = enum.auto()
     orders_msg = enum.auto()
+    streams_msg = enum.auto()
     found_n_songs = enum.auto()
     song_name_added = enum.auto()
     setting_song = enum.auto()
