@@ -8,20 +8,57 @@ template = {'token': '', 'admins_chat': "0", 'max_history_size': 100, "lang": "U
 
 class Config:
     def __init__(self):
+        # defaults:
+        self.data = dict()  
+        self.token = ""
+        self.admins_chat = "0"
+        self.max_history_size = 100
+        self.lang = "UA"
+        self.default_station = "KissFM"
+        self.default_stream = "LofiGirl"
+        self.streams = dict()
+        self.streams = {"LofiGirl": "https://www.youtube.com/watch?v=jfKfPfyJRdk&ab_channel=LofiGirl"}
+
+
         # try read
         try:
-            config = open(filename, "r+")
+            self.read_from_file()
+            if not self.parse():
+                abort()
         except FileNotFoundError:
-            config = open(filename, "w")
-            default = json.dumps(template, indent=4)
-            config.write(default)
-            config.close()
             print("Config was not found, created new. Please fill it!")
+            self.update_config()
+            self.write_to_file()
             abort()
+       
+        print("Token = ", self.token)
+        print("Admins chat ID = ", self.admins_chat)
+        print("Max history size = ", self.max_history_size)
+        print("Default station = ", self.default_station)
+        print(self.lang)
+
+    def write_to_file(self):
+        config = open(filename, "w")
+        default = json.dumps(self.data, indent=4)
+        config.write(default)
+        config.close()
+
+    def read_from_file(self):
+        config = open(filename, "r+")
         filedata = config.read()
         config.close()
         self.data = json.loads(filedata)
-        # Init values
+
+    def update_config(self):
+        self.data['token'] = self.token
+        self.data['admins_chat'] = self.admins_chat
+        self.data['max_history_size'] = self.max_history_size
+        self.data['lang'] = self.lang
+        self.data['default_station'] = self.default_station
+        self.data['default_stream'] = self.default_stream
+        self.data['streams'] = self.streams
+
+    def parse(self):
         try:
             self.token = self.data['token']
             self.admins_chat = self.data['admins_chat']
@@ -30,26 +67,12 @@ class Config:
             if self.lang == "RU":
                 self.lang = "UA"
             self.default_station = self.data['default_station']
+            self.default_stream = self.data['default_stream']
+            self.streams = self.data['streams']
+
+            return True
         except KeyError as e:
             print("No parameter " + str(e) + " in config")
-            abort()
-
-        print("Token = ", self.token)
-        print("Admins chat ID = ", self.admins_chat)
-        print("Max history size = ", self.max_history_size)
-        print("Default station = ", self.default_station)
-        print(self.lang)
-
-    def update_config(self):
-        self.data['token'] = self.token
-        self.data['admins_chat'] = self.admins_chat
-        self.data['max_history_size'] = self.max_history_size
-        self.data['lang'] = self.lang
-        self.data['default_station'] = self.default_station
-        config = open(filename, "w")
-        default = json.dumps(self.data, indent=4)
-        config.write(default)
-        config.close()
-
+            return False
 
 conf = Config()

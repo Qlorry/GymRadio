@@ -17,6 +17,7 @@ TRANSLATION = {
     LangKeys.starting_url_load : "Staring url loading",
     LangKeys.already_selected_msg : "Already Selected",
     LangKeys.orders_msg : "Orders",
+    LangKeys.streams_msg : "Streaming: {0}",
     LangKeys.found_n_songs: "Added {0} songs to queue",
     LangKeys.song_name_added: "Song \"{0}\" added to queue",
     LangKeys.setting_song: "Setting \"{0}\"",
