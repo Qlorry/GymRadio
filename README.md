@@ -49,3 +49,4 @@
       4. From message in console copy chat id
 6. Set _admins_chat_ to id from 5.4.
 7. Restart bot app
+8. As Admin run: "C:\Program Files\VideoLAN\VLC\vlc-cache-gen.exe" "C:\Program Files\VideoLAN\VLC\plugins"   ?
