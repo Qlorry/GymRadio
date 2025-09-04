@@ -10,7 +10,10 @@ class ContextLogger(logging.LoggerAdapter):
 
 
 class Ctx:
-    def __init__(self, message: telebot.types.Message, respond_callback, edit_callback):
+    def __init__(self, message: telebot.types.Message | telebot.types.CallbackQuery, respond_callback, edit_callback):
+        if isinstance(message, telebot.types.CallbackQuery):
+            message = message.message
+        
         self.chat_id = message.chat.id
         self._respond_callback = respond_callback
         self._edit_callback = edit_callback

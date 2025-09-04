@@ -2,7 +2,6 @@ import datetime
 import threading
 
 import validators
-import logging
 import telebot
 
 from Lang.lang import Transl
@@ -50,7 +49,7 @@ def handle_start_help(message, ctx: Ctx):
 @tb.message_handler(commands=['start', 'help'], only_admin_chat=False)
 @ctx_factory.add_ctx
 def handle_start_help(message, ctx: Ctx):
-    logging.info("user start/help")
+    ctx.logger.info("user start/help")
     tb.send_message(message.chat.id, Transl(LangKeys.instruction))
 
 @tb.message_handler(text=['⏯', '⏯️'], only_admin_chat=True)
@@ -75,14 +74,14 @@ def handle_prev(message, ctx: Ctx):
 @ctx_factory.add_ctx
 def handle_stop(message, ctx: Ctx):
     player.stop()
-    logging.info("stop")
+    ctx.logger.info("stop")
     tb.send_message(message.chat.id, Transl(LangKeys.stop_msg))
 
 
 @tb.message_handler(commands=['radio'], only_admin_chat=True)
 @ctx_factory.add_ctx
 def handle_radio(message, ctx: Ctx):
-    logging.info("radio")
+    ctx.logger.info("radio")
     tb.send_message(message.chat.id, Transl(LangKeys.radio_stations_msg), reply_markup=get_radio_list_keyboard())
 
 
@@ -100,10 +99,10 @@ def handle_orders(message, ctx: Ctx):
 @tb.message_handler(commands=['upnext'], only_admin_chat=True)
 @ctx_factory.add_ctx
 def handle_upnext(message, ctx: Ctx):
-    logging.info("upnext")
-    songs = logic.get_upnext_list()
+    ctx.logger.info("upnext")
+    songs = logic.get_upnext_list(ctx)
     if len(songs["list"]) == 0:
-        logging.warning("No More songs for upnext")
+        ctx.logger.warning("No More songs for upnext")
         tb.send_message(message.chat.id, "No more songs in queue")
         return
     tb.send_message(message.chat.id, "Next songs:\n", reply_markup=get_upnext_list_keyboard(songs["list"],
@@ -113,10 +112,10 @@ def handle_upnext(message, ctx: Ctx):
 @tb.message_handler(commands=['history'], only_admin_chat=True)
 @ctx_factory.add_ctx
 def handle_history(message, ctx: Ctx):
-    logging.info("history")
-    songs = logic.get_history_list()
+    ctx.logger.info("history")
+    songs = logic.get_history_list(ctx)
     if len(songs["list"]) == 0:
-        logging.warning("No More songs for history")
+        ctx.logger.warning("No More songs for history")
         tb.send_message(message.chat.id, "No more songs in history")
         return
     tb.send_message(message.chat.id,
@@ -134,14 +133,14 @@ def handle_list(message, ctx: Ctx):
 @tb.message_handler(text=['Whats playing now?'], only_admin_chat=False)
 @ctx_factory.add_ctx
 def handle_now(message, ctx: Ctx):
-    logging.info("Want's now")
+    ctx.logger.info("Want's now")
     tb.send_message(chat_id=message.chat.id, text=player.whats_playing())
 
 
 @tb.message_handler(commands=['swap'], only_admin_chat=True)
 @ctx_factory.add_ctx
 def handle_swap(message, ctx: Ctx):
-    logging.info("swap")
+    ctx.logger.info("swap")
     command = message.text.split()
     try:
         player.swap(int(command[1]), int(command[2]))
@@ -157,15 +156,17 @@ def callback_inline(call, ctx: Ctx):
     if call.message:
         data = yaml.load(call.data, Loader=yaml.Loader)
         if data["c"] == "choose_radio":
+            radio_selected = data["n"]
+            ctx.logger.info("choosing radio {}", radio_selected)
             player.stop()
-            name = player.load_station(data["n"])
+            name = player.load_station(radio_selected)
             player.switch_to_radio()
             player.play()
             tb.edit_message_text(chat_id=call.message.chat.id,
                                  message_id=call.message.message_id,
                                  text="Setting " + name)
         if data["c"] == "set":
-            logging.info("Want to play song " + " at " + str(data["i"]))
+            ctx.logger.info("Want to play song " + " at " + str(data["i"]))
             player.stop()
             player.go_to(data["i"])
             player.play()
@@ -175,7 +176,7 @@ def callback_inline(call, ctx: Ctx):
         if data["c"] == "more_upnext":
             last_index = data["lastIndex"] + 5  # 1 + 5 not to get last song in that list
             songs = player.get_n_songs(data["lastIndex"] + 1, last_index)
-            logging.info("Want to see more songs")
+            ctx.logger.info("Want to see more songs up next")
             if len(songs) == 0:
                 tb.edit_message_text(chat_id=call.message.chat.id,
                                      message_id=call.message.message_id,
@@ -191,7 +192,7 @@ def callback_inline(call, ctx: Ctx):
             songs = player.get_n_songs(first_index, data["firstIndex"] - 1)
             if first_index < 0:
                 first_index = 0
-            logging.info("Want to see more songs")
+            ctx.logger.info("Want to see more songs in history")
             if len(songs) == 0:
                 tb.edit_message_text(chat_id=call.message.chat.id,
                                      message_id=call.message.message_id,
@@ -212,13 +213,13 @@ def handle_input(message, ctx: Ctx):
         print("Url is valid")
         res_dict = logic.fetch_info(message.text, ctx)
         if len(res_dict) == 0:
-            logging.warning("No info for link!")
+            ctx.logger.warning("No info for link!")
             tb.send_message(message.chat.id, Transl(LangKeys.url_cant_load))
             return
         tb.send_message(message.chat.id, Transl(LangKeys.starting_url_load))
         logic.start_download(res_dict, ctx)
     else:
-        logging.info("Invalid Link")
+        ctx.logger.info("Invalid Link")
         tb.send_message(message.chat.id, Transl(LangKeys.url_bad))
 
 

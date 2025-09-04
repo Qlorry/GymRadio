@@ -5,7 +5,7 @@ from os import abort
 filename = "config.json"
 
 template = {'token': '', 'admins_chat': "0", 'max_history_size': 100, "lang": "UA", "default_station": "KissFM"}
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("config")
 
 class Config:
     def __init__(self):

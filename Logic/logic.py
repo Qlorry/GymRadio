@@ -1,5 +1,3 @@
-import logging
-
 from DataDownloader.downloader import Downloader
 from DataDownloader.convertor import convert
 from Player.OrderListPlayer import ChangeSongRes
@@ -18,13 +16,13 @@ class Logic:
 
     def fetch_info(self, url, ctx: Ctx):
         if util.is_youtube_link(url):
-            logging.info("Loading YT link {0}".format(url))
+            ctx.logger.info("Loading YT link {0}".format(url))
             return self._downloader.load_info(url)
         new_links = convert(url)
         if len(new_links) == 0:
             ctx.respond(Transl(LangKeys.song_not_found))
             return []
-        logging.info("Loading multiple YT links {0}".format(str(new_links)))
+        ctx.logger.info("Loading multiple YT links {0}".format(str(new_links)))
         for link in new_links:
             result = self._downloader.load_info(link)
             if len(result) != 0:
@@ -34,7 +32,7 @@ class Logic:
 
 
     def add_list(self, res_dict, ctx: Ctx):
-        logging.info("Adding playlist")
+        ctx.logger.info("Adding playlist")
         cnt = 0
         fails = 0
         msg_str = Transl(LangKeys.adding_playlist)
@@ -63,7 +61,7 @@ class Logic:
 
 
     def add_single(self, res_dict, ctx: Ctx):
-        logging.info("Adding single song " + res_dict.get('title'))
+        ctx.logger.info("Adding single song " + res_dict.get('title'))
 
         name = res_dict.get('title') if res_dict.get('title') is not None else ""
         album = res_dict.get('album') if res_dict.get('album') is not None else "NA"
@@ -87,16 +85,16 @@ class Logic:
 
     def play_or_pause(self, ctx: Ctx):
         if self._player.is_now_playing():
-            logging.info("pause")
+            ctx.logger.info("pause")
             ctx.respond(Transl(LangKeys.pause_msg))
             self._player.pause()
         else:
-            logging.info("play")
+            ctx.logger.info("play")
             ctx.respond(Transl(LangKeys.play_msg))
             self._player.play()
 
     def next(self, ctx: Ctx):
-        logging.info("next")
+        ctx.logger.info("next")
         song_name = self._player.next()
         if song_name is None:
             ctx.respond(Transl(LangKeys.something_went_wrong))
@@ -111,7 +109,7 @@ class Logic:
         ctx.respond(Transl(LangKeys.setting_song, song_name))
 
     def prev(self, ctx: Ctx):
-        logging.info("prev")
+        ctx.logger.info("prev")
         res = self._player.prev()
         if res is None:
             ctx.respond(Transl(LangKeys.something_went_wrong))
@@ -122,7 +120,7 @@ class Logic:
         if self._player.is_playing(Source.ORDERS):
             ctx.respond(Transl(LangKeys.already_selected_msg))
             return
-        logging.info("orders")
+        ctx.logger.info("orders")
         self._player.switch_to_orders()
         ctx.respond(Transl(LangKeys.orders_msg))
 
@@ -130,24 +128,24 @@ class Logic:
         if self._player.is_playing(Source.STREAM):
             ctx.respond(Transl(LangKeys.already_selected_msg))
             return
-        logging.info("streams")
+        ctx.logger.info("streams")
         self._player.switch_to_streams()
         ctx.respond(Transl(LangKeys.streams_msg, self._player.whats_playing()))
 
 
-    def get_upnext_list(self):
-        logging.info("upnext")
+    def get_upnext_list(self, ctx: Ctx):
+        ctx.logger.info("upnext")
         return self._player.get_next_songs(5)
 
-    def get_history_list(self):
-        logging.info("history")
+    def get_history_list(self, ctx: Ctx):
+        ctx.logger.info("history")
         return self._player.get_prev_songs(5)
 
     def handle_list(self, ctx: Ctx):
-        logging.info("list")
+        ctx.logger.info("list")
         songs = self._player.get_all_songs()
         if len(songs) == 0:
-            logging.warning("No songs in media player")
+            ctx.logger.warning("No songs in media player")
             ctx.respond(Transl(LangKeys.list_is_empty))
             return
         current = self._player.get_current_index()

@@ -22,7 +22,7 @@ class BraceStyleAdapter(logging.Logger):
 # Patch the logging class globally
 logging.setLoggerClass(BraceStyleAdapter)
 
-log_formatter = logging.Formatter('[{asctime}][{levelname}][{thread}][{chat}/{user}] {message}',
+log_formatter = logging.Formatter('[{asctime}][{levelname}][{thread}][{chat}/{user}][{name}] {message}',
                                   datefmt='%Y-%m-%d %H:%M:%S', 
                                   style='{',
                                   defaults={'chat': '-', 'user': '-'})
