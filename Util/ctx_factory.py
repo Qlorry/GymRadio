@@ -12,7 +12,9 @@ class CtxFactory(object):
        
     def add_ctx(self, func):
         def wrapper(*args, **kwargs):
-            kwargs["ctx"] = self.new(args[0])
+            ctx = self.new(args[0])
+            kwargs["ctx"] = ctx
+            ctx.logger.debug("{} called", func.__name__)
             result = func(*args, **kwargs)
             return result
         return wrapper

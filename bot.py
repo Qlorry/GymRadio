@@ -48,49 +48,58 @@ def handle_start_help(message, ctx: Ctx):
 
 
 @tb.message_handler(commands=['start', 'help'], only_admin_chat=False)
-def handle_start_help(message):
+@ctx_factory.add_ctx
+def handle_start_help(message, ctx: Ctx):
     logging.info("user start/help")
     tb.send_message(message.chat.id, Transl(LangKeys.instruction))
 
 @tb.message_handler(text=['⏯', '⏯️'], only_admin_chat=True)
-def handle_play_pause(message):
-    logic.play_or_pause(ctx_factory.new(message))
+@ctx_factory.add_ctx
+def handle_play_pause(message, ctx: Ctx):
+    logic.play_or_pause(ctx)
 
 
 @tb.message_handler(text=['⏭'], only_admin_chat=True)
-def handle_next(message):
-    logic.next(ctx_factory.new(message))
+@ctx_factory.add_ctx
+def handle_next(message, ctx: Ctx):
+    logic.next(ctx)
 
 
 @tb.message_handler(text=['⏮'], only_admin_chat=True)
-def handle_prev(message):
-    logic.prev(ctx_factory.new(message))
+@ctx_factory.add_ctx
+def handle_prev(message, ctx: Ctx):
+    logic.prev(ctx)
 
 
 @tb.message_handler(text=['⏹'], only_admin_chat=True)
-def handle_stop(message):
+@ctx_factory.add_ctx
+def handle_stop(message, ctx: Ctx):
     player.stop()
     logging.info("stop")
     tb.send_message(message.chat.id, Transl(LangKeys.stop_msg))
 
 
 @tb.message_handler(commands=['radio'], only_admin_chat=True)
-def handle_radio(message):
+@ctx_factory.add_ctx
+def handle_radio(message, ctx: Ctx):
     logging.info("radio")
     tb.send_message(message.chat.id, Transl(LangKeys.radio_stations_msg), reply_markup=get_radio_list_keyboard())
 
 
 @tb.message_handler(commands=['orders'], only_admin_chat=True)
-def handle_orders(message):
-    logic.play_orders(ctx_factory.new(message))
+@ctx_factory.add_ctx
+def handle_orders(message, ctx: Ctx):
+    logic.play_orders(ctx)
 
 @tb.message_handler(commands=['live_streams'], only_admin_chat=True)
-def handle_orders(message):
-    logic.play_streams(ctx_factory.new(message))
+@ctx_factory.add_ctx
+def handle_orders(message, ctx: Ctx):
+    logic.play_streams(ctx)
 
 
 @tb.message_handler(commands=['upnext'], only_admin_chat=True)
-def handle_upnext(message):
+@ctx_factory.add_ctx
+def handle_upnext(message, ctx: Ctx):
     logging.info("upnext")
     songs = logic.get_upnext_list()
     if len(songs["list"]) == 0:
@@ -102,7 +111,8 @@ def handle_upnext(message):
 
 
 @tb.message_handler(commands=['history'], only_admin_chat=True)
-def handle_history(message):
+@ctx_factory.add_ctx
+def handle_history(message, ctx: Ctx):
     logging.info("history")
     songs = logic.get_history_list()
     if len(songs["list"]) == 0:
@@ -115,19 +125,22 @@ def handle_history(message):
 
 
 @tb.message_handler(commands=['list'], only_admin_chat=False)
-def handle_list(message):
-    logic.handle_list(ctx_factory.new(message))
+@ctx_factory.add_ctx
+def handle_list(message, ctx: Ctx):
+    logic.handle_list(ctx)
 
 
 @tb.message_handler(commands=['now'], only_admin_chat=False)
 @tb.message_handler(text=['Whats playing now?'], only_admin_chat=False)
-def handle_now(message):
+@ctx_factory.add_ctx
+def handle_now(message, ctx: Ctx):
     logging.info("Want's now")
     tb.send_message(chat_id=message.chat.id, text=player.whats_playing())
 
 
 @tb.message_handler(commands=['swap'], only_admin_chat=True)
-def handle_swap(message):
+@ctx_factory.add_ctx
+def handle_swap(message, ctx: Ctx):
     logging.info("swap")
     command = message.text.split()
     try:
@@ -138,7 +151,8 @@ def handle_swap(message):
 
 
 @tb.callback_query_handler(func=lambda call: True)
-def callback_inline(call):
+@ctx_factory.add_ctx
+def callback_inline(call, ctx: Ctx):
     # Если сообщение из чата с ботом
     if call.message:
         data = yaml.load(call.data, Loader=yaml.Loader)
@@ -190,9 +204,9 @@ def callback_inline(call):
 
 
 @tb.message_handler(content_types=['text'])
-def handle_input(message):
+@ctx_factory.add_ctx
+def handle_input(message, ctx: Ctx):
     valid = validators.url(message.text)
-    ctx = ctx_factory.new(message)
     if valid:
         tb.send_message(message.chat.id, Transl(LangKeys.url_ok))
         print("Url is valid")
