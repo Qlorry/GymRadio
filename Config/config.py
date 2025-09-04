@@ -1,10 +1,11 @@
 import json
+import logging
 from os import abort
 
 filename = "config.json"
 
 template = {'token': '', 'admins_chat': "0", 'max_history_size': 100, "lang": "UA", "default_station": "KissFM"}
-
+logger = logging.getLogger(__name__)
 
 class Config:
     def __init__(self):
@@ -26,16 +27,16 @@ class Config:
             if not self.parse():
                 abort()
         except FileNotFoundError:
-            print("Config was not found, created new. Please fill it!")
+            logger.error("Config was not found, created new. Please fill it!")
             self.update_config()
             self.write_to_file()
             abort()
        
-        print("Token = ", self.token)
-        print("Admins chat ID = ", self.admins_chat)
-        print("Max history size = ", self.max_history_size)
-        print("Default station = ", self.default_station)
-        print(self.lang)
+        logger.info("Token = {}", self.token)
+        logger.info("Admins chat ID = {}", self.admins_chat)
+        logger.info("Max history size = {}", self.max_history_size)
+        logger.info("Default station = {}", self.default_station)
+        logger.info(self.lang)
 
     def write_to_file(self):
         config = open(filename, "w")
@@ -72,7 +73,7 @@ class Config:
 
             return True
         except KeyError as e:
-            print("No parameter " + str(e) + " in config")
+            logger.error("No parameter " + str(e) + " in config")
             return False
 
 conf = Config()

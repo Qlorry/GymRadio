@@ -12,6 +12,7 @@ from Player.OrderListPlayer import ChangeSongRes
 from Config.keybord_layouts import *
 from Config.config import conf
 import Util.bot_filters as bot_filters
+from Util.ctx import Ctx
 from Util.ctx_factory import CtxFactory
 
 # Bot setup
@@ -38,18 +39,16 @@ def start_bot(player_ref, logic_ref):
     th = threading.Thread(target=run_polling)
     th.start()
 
-
 @tb.message_handler(commands=['start', 'help'], only_admin_chat=True)
-def handle_start_help(message):
-    print("Start from admins ", message.chat.id)
-    logging.info("admin start/help")
+@ctx_factory.add_ctx
+def handle_start_help(message, ctx: Ctx):
+    ctx.logger.info("admin start/help")
     markup = get_admin_ui()
     tb.send_message(message.chat.id, Transl(LangKeys.admin_instruction), reply_markup=markup)
 
 
 @tb.message_handler(commands=['start', 'help'], only_admin_chat=False)
 def handle_start_help(message):
-    print("Start from user ", message.chat.id)
     logging.info("user start/help")
     tb.send_message(message.chat.id, Transl(LangKeys.instruction))
 

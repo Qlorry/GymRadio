@@ -18,12 +18,13 @@ class Logic:
 
     def fetch_info(self, url, ctx: Ctx):
         if util.is_youtube_link(url):
-            logging.info("Loading YT link")
+            logging.info("Loading YT link {0}".format(url))
             return self._downloader.load_info(url)
         new_links = convert(url)
         if len(new_links) == 0:
             ctx.respond(Transl(LangKeys.song_not_found))
             return []
+        logging.info("Loading multiple YT links {0}".format(str(new_links)))
         for link in new_links:
             result = self._downloader.load_info(link)
             if len(result) != 0:

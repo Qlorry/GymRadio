@@ -9,3 +9,10 @@ class CtxFactory(object):
     
     def new(self, message: telebot.types.Message) -> Ctx:
         return Ctx(message, self._respond_callback, self._edit_callback)
+       
+    def add_ctx(self, func):
+        def wrapper(*args, **kwargs):
+            kwargs["ctx"] = self.new(args[0])
+            result = func(*args, **kwargs)
+            return result
+        return wrapper
