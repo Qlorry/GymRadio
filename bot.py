@@ -210,7 +210,7 @@ def handle_input(message, ctx: Ctx):
     valid = validators.url(message.text)
     if valid:
         tb.send_message(message.chat.id, Transl(LangKeys.url_ok))
-        print("Url is valid")
+        ctx.logger.info("Url is valid")
         res_dict = logic.fetch_info(message.text, ctx)
         if len(res_dict) == 0:
             ctx.logger.warning("No info for link!")

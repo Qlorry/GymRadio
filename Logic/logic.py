@@ -11,20 +11,20 @@ from Lang.lang_keys import LangKeys
 
 class Logic:
     def __init__(self, player: SuperPlayer):
-        self._downloader = Downloader()
         self._player = player
 
     def fetch_info(self, url, ctx: Ctx):
+        downloader = Downloader(ctx.logger)
         if util.is_youtube_link(url):
             ctx.logger.info("Loading YT link {0}".format(url))
-            return self._downloader.load_info(url)
+            return downloader.load_info(url)
         new_links = convert(url)
         if len(new_links) == 0:
             ctx.respond(Transl(LangKeys.song_not_found))
             return []
         ctx.logger.info("Loading multiple YT links {0}".format(str(new_links)))
         for link in new_links:
-            result = self._downloader.load_info(link)
+            result = downloader.load_info(link)
             if len(result) != 0:
                 ctx.respond(Transl(LangKeys.found_this, link))
                 return result
@@ -38,6 +38,7 @@ class Logic:
         msg_str = Transl(LangKeys.adding_playlist)
 
         list_msg = ctx.respond(msg_str)
+        downloader = Downloader(ctx.logger)
 
         for item in res_dict.get('entries'):
             name = item.get('title') if item.get('title') is not None else ""
@@ -45,7 +46,7 @@ class Logic:
             if util.is_song_in_os(album, name):
                 loaded_song = item
             else:
-                loaded_song = self._downloader.load(item['webpage_url'])
+                loaded_song = downloader.load(item['webpage_url'])
             if loaded_song is None:
                 cnt += 1
                 msg_str += "#" + str(cnt) + " " + item.get('title') + " -- Failed\n"
@@ -62,13 +63,14 @@ class Logic:
 
     def add_single(self, res_dict, ctx: Ctx):
         ctx.logger.info("Adding single song " + res_dict.get('title'))
+        downloader = Downloader(ctx.logger)
 
         name = res_dict.get('title') if res_dict.get('title') is not None else ""
         album = res_dict.get('album') if res_dict.get('album') is not None else "NA"
         if util.is_song_in_os(album, name):
             loaded_song = res_dict
         else:
-            loaded_song = self._downloader.load(res_dict['webpage_url'])
+            loaded_song = downloader.load(res_dict['webpage_url'])
         if loaded_song is None:
             ctx.respond(Transl(LangKeys.song_load_failed, res_dict.get('title')))
             return

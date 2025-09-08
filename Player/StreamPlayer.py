@@ -6,12 +6,10 @@ import yt_dlp
 from Config.config import conf
 import os
 
+from DataDownloader.downloader import Downloader
+
 mutex = threading.Lock()
 
-ydl_opts = {
-    'format': 'bestaudio/best',  # pick best available
-    'quiet': True,
-}
 
 class StreamPlayer:
     def __init__(self):
@@ -39,15 +37,11 @@ class StreamPlayer:
     def _add_to_media_list(self, index):
         if self.stream_names[index] in self.real_stream_links.keys():
             return
-        link = self._get_real_stream_link(index)
+        downloader = Downloader(logging.getLogger("stream player"))
+        link = downloader.get_real_stream_link(self.stream_links[index])
         self.real_stream_links[self.stream_names[index]] = link
         media = vlc.Media(link, "no-video")
         self.media_list.add_media(media)
-
-    def _get_real_stream_link(self, index):
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(self.stream_links[index], download=False)
-            return info['url']
 
     def play(self):
         self._add_to_media_list(self.current_stream_index)

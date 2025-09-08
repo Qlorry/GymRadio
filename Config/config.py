@@ -19,7 +19,7 @@ class Config:
         self.default_stream = "LofiGirl"
         self.streams = dict()
         self.streams = {"LofiGirl": "https://www.youtube.com/watch?v=jfKfPfyJRdk&ab_channel=LofiGirl"}
-
+        self.log_level = "INFO"
 
         # try read
         try:
@@ -31,7 +31,7 @@ class Config:
             self.update_config()
             self.write_to_file()
             abort()
-       
+
         logger.info("Token = {}", self.token)
         logger.info("Admins chat ID = {}", self.admins_chat)
         logger.info("Max history size = {}", self.max_history_size)
@@ -58,6 +58,7 @@ class Config:
         self.data['default_station'] = self.default_station
         self.data['default_stream'] = self.default_stream
         self.data['streams'] = self.streams
+        self.data['log_level'] = self.log_level
 
     def parse(self):
         try:
@@ -70,6 +71,7 @@ class Config:
             self.default_station = self.data['default_station']
             self.default_stream = self.data['default_stream']
             self.streams = self.data['streams']
+            self.log_level = self.data['log_level']
 
             return True
         except KeyError as e:
@@ -77,3 +79,4 @@ class Config:
             return False
 
 conf = Config()
+logging.root.setLevel(conf.log_level)

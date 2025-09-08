@@ -20,10 +20,15 @@ ydl_opts = {
                 'preferredquality': '192',
             }],     
             'progress_hooks': [my_hook],
+            'logger': logging.getLogger('downloader')
         }
 
 class Downloader:
+    def __init__(self, logger: logging.LoggerAdapter):
+        self._logger = logger
+
     def load_info(self, url):
+        ydl_opts['logger'] = self._logger
         try:
             with YoutubeDL(ydl_opts) as ydl:
                 return ydl.extract_info(url, download=False)
@@ -32,6 +37,7 @@ class Downloader:
             return []
 
     def load(self, url):
+        ydl_opts['logger'] = self._logger
         try:
             with YoutubeDL(ydl_opts) as ydl:
                 res = ydl.extract_info(url)
@@ -44,3 +50,13 @@ class Downloader:
         except Exception as e:
             logging.warning("Error downloading song" + str(e))
             return None
+
+    def get_real_stream_link(self, url):
+        options = {
+            'format': 'bestaudio/best',  # pick best available
+            'quiet': True,
+            'logger': self._logger
+        }
+        with YoutubeDL(options) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return info['url']

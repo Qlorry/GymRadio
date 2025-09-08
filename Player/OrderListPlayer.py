@@ -21,7 +21,7 @@ class OrdersListPlayer:
         self._current = -1
         self._end_callback = None
         player_events = self._orders_player.event_manager()
-        print(player_events.event_attach(vlc.EventType.MediaPlayerEndReached, self.next_callback))
+        logging.debug("Setting callback in MediaPlayer for OrdersListPlayer, res: %d",player_events.event_attach(vlc.EventType.MediaPlayerEndReached, self.next_callback))
 
     def current(self):
         self._mutex.acquire()

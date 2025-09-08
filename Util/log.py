@@ -6,7 +6,6 @@ from Util.util import *
 
 
 date_on_start = datetime.datetime.now()
-# logging.basicConfig(filename=log_filename, level=logging.INFO)
 
 class BraceStyleAdapter(logging.Logger):
     def _log(self, level, msg, args, exc_info=None, extra=None, stack_info=False, stacklevel=1):
